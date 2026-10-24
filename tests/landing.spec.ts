@@ -195,3 +195,102 @@ test('the cards can be scrolled with a keyboard on a phone', async ({ page }) =>
   await page.keyboard.press('ArrowRight');
   await expect.poll(() => row.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
 });
+
+// Every piece of text is measured against the pixels actually rendered behind it,
+// including the painted hero and the cards: the page is screenshotted with all
+// text hidden, and each text box is sampled from that image. A box passes when
+// its 10th-percentile contrast clears WCAG AA (4.5:1, or 3:1 for large text), so
+// a stray light pixel in a painting cannot fail it but a light patch can.
+test('every piece of text has enough contrast with what is behind it', async ({ browser, isMobile }) => {
+  test.setTimeout(90_000);
+  // Its own context: hiding the text needs an injected style, which the site's CSP rightly refuses.
+  const context = await browser.newContext({ bypassCSP: true, viewport: isMobile ? { width: 390, height: 844 } : { width: 1280, height: 900 } });
+  const page = await context.newPage();
+  await visitWholePage(page);
+  await page.$$eval('img', (imgs) => Promise.allSettled(imgs.map((i) => i.decode())));
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // Freeze what a full-page capture would otherwise move or hide: the hero's height
+  // follows the viewport (svh), fanned cards report axis-aligned boxes wider than their
+  // text, and on a phone the cards scrolled out of their row are not painted at all.
+  const heroHeight = await page.locator('.pd-hero').evaluate((el) => el.getBoundingClientRect().height);
+  await page.addStyleTag({
+    content: `.pd-grove .pd-hero { min-height: ${heroHeight}px !important; height: ${heroHeight}px; }
+      .pd-grove .pd-card { transform: none !important; }
+      .pd-grove .pd-card-row { flex-wrap: wrap !important; overflow: visible !important; }`,
+  });
+
+  const boxes = await page.evaluate(() => {
+    const out: { label: string; color: number[]; large: boolean; rects: number[][] }[] = [];
+    const walker = document.createTreeWalker(document.querySelector('.pd-grove')!, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      const el = node.parentElement!;
+      if (!node.textContent!.trim() || el.closest('[aria-hidden="true"]')) continue;
+      const style = getComputedStyle(el);
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      const rects = [...range.getClientRects()]
+        .filter((r) => r.width > 2 && r.height > 2)
+        .map((r) => [r.left + window.scrollX, r.top + window.scrollY, r.width, r.height]);
+      if (!rects.length) continue;
+      const size = parseFloat(style.fontSize);
+      const bold = parseInt(style.fontWeight, 10) >= 700;
+      out.push({
+        label: `${el.tagName.toLowerCase()} "${node.textContent!.trim().slice(0, 40)}"`,
+        color: style.color.match(/[\d.]+/g)!.map(Number),
+        large: size >= 24 || (bold && size >= 18.66),
+        rects,
+      });
+    }
+    return out;
+  });
+
+  // :not(#a):not(#b) lifts the rule above any id or class rule, !important ones included.
+  await page.addStyleTag({
+    content: '*:not(#a):not(#b) { color: transparent !important; text-shadow: none !important; text-decoration-color: transparent !important; }',
+  });
+  // One screenshot pixel per CSS pixel, so it lines up with the text boxes on a high-DPI phone too.
+  const shot = await page.screenshot({ fullPage: true, scale: 'css' });
+
+  // Decode the screenshot in a blank page (the site's own CSP rightly refuses data: images).
+  const lab = await browser.newPage();
+  const failures = await lab.evaluate(
+    async ({ png, boxes }) => {
+      const img = new Image();
+      img.src = `data:image/png;base64,${png}`;
+      await img.decode();
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width;
+      canvas.height = img.height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.drawImage(img, 0, 0);
+      const lin = (c: number) => ((c /= 255) <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+      const lum = (r: number, g: number, b: number) => 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b);
+      const bad: string[] = [];
+      for (const box of boxes) {
+        const ratios: number[] = [];
+        for (const [x, y, w, h] of box.rects) {
+          const data = ctx.getImageData(Math.floor(x!), Math.floor(y!), Math.max(1, Math.ceil(w!)), Math.max(1, Math.ceil(h!))).data;
+          for (let i = 0; i < data.length; i += 4 * 7) {
+            const [r, g, b, a = 1] = box.color;
+            // Blend a translucent text colour over the pixel it sits on.
+            const fr = r! * a + data[i]! * (1 - a);
+            const fg = g! * a + data[i + 1]! * (1 - a);
+            const fb = b! * a + data[i + 2]! * (1 - a);
+            const l1 = lum(fr, fg, fb);
+            const l2 = lum(data[i]!, data[i + 1]!, data[i + 2]!);
+            ratios.push((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
+          }
+        }
+        ratios.sort((p, q) => p - q);
+        const p10 = ratios[Math.floor(ratios.length * 0.1)] ?? 21;
+        const need = box.large ? 3 : 4.5;
+        if (p10 < need) bad.push(`${box.label}: ${p10.toFixed(2)}:1, needs ${need}:1`);
+      }
+      return bad;
+    },
+    { png: shot.toString('base64'), boxes },
+  );
+  await lab.close();
+  await context.close();
+  expect(failures).toEqual([]);
+});
