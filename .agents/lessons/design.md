@@ -12,3 +12,12 @@ transparent before the box edge.
 pencil style; around the detailed painted art they looked like stickers on a picture book.
 **How to apply.** Let painted plates sit borderless on the paper with a warm, soft shadow; keep
 lines for things that are drawn.
+
+## A shade that is fine for art is not fine for text
+**What happened.** The keepsake captions reused the plank's shading colour `#8E6640`: 4.42:1 on
+paper, just under AA. A rust link on the sunset fade was 4.3:1. Both looked fine by eye.
+**Why it bit.** Palette tones are chosen for paintings; text needs its own darker shade per
+background, and a gradient background is only as good as its darkest point under the text.
+**How to apply.** Give text its own tokens (`--pd-rust-text`, `--pd-wood-text`) with the ratio in
+a comment, and keep the pixel-sampling contrast test green: it measures what is really behind
+each word, paintings and gradients included.

@@ -56,9 +56,10 @@
   --pd-moss-text: #4B6740;
   --pd-sky: #CFE3EC;
   --pd-wood: #B98A5A;
-  --pd-wood-deep: #8E6640;
+  --pd-wood-deep: #8E6640; /* shading only: 4.4:1 on paper is too light for text */
+  --pd-wood-text: #6B4626; /* wood as text: 7.2:1 on paper */
   --pd-paper: #F7EEDC;
-  --pd-dusk: #EBC9A8;
+  --pd-dusk: #F3DAC0; /* light enough that rust links keep 4.7:1 on it */
   --pd-indigo: #3E4A78;
   --pd-night: #232848;
   --pd-gold: #F2C66D;
@@ -351,7 +352,7 @@ main > section {
   font-size: 0.9rem;
   font-weight: 700;
   line-height: 1.25;
-  color: var(--pd-wood-deep);
+  color: var(--pd-wood-text);
 }
 
 .pd-grove .pd-shelf img {

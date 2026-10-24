@@ -110,6 +110,7 @@ a low-end phone or a slow connection.
 | Peek runs normally; with reduced motion the panda is already out from behind the trunk | e2e | `the shy panda peeks once, and rests in place when motion is reduced` |
 | Baloo 2 and Nunito actually load (a wrong path would fall back silently) | e2e | `the game's own fonts are the ones in use` |
 | On a phone the card row scrolls, and a keyboard can scroll it | e2e | `the cards can be scrolled with a keyboard on a phone` |
+| Every piece of text clears WCAG AA against the pixels actually rendered behind it (paintings, haze, gradients included) | e2e | `every piece of text has enough contrast with what is behind it` |
 | Someone in the family understands it unaided | manual | the Phase 0 gate |
 | Zero third-party requests in a real browser's DevTools | manual | the Phase 0 gate |
 

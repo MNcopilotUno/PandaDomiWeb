@@ -112,3 +112,37 @@ Second PR on the same branch, restarted from `main` after the first one merged.
   (`cqi`) on the cards.
 - Load time on a real phone on a slow connection.
 - That the deployed site matches until the Pages deploy of this round has run.
+
+---
+
+# Round 3: caption and link contrast
+
+Found while drawing the landing page on a design canvas: the keepsake captions used
+`--pd-wood-deep` `#8E6640` at 14.4 px bold, 4.42:1 on paper, under WCAG AA's 4.5:1.
+
+## Findings
+
+| # | Finding | Severity | Resolution |
+|:--|:--|:--|:--|
+| C1 | Keepsake captions 4.12–4.42:1 (measured against the rendered shelf). | medium (a11y) | New `--pd-wood-text` `#6B4626` (7.2:1 on paper). `--pd-wood-deep` stays for the plank's shading only. |
+| C2 | The new test found a second one: "the news feed" link, rust on the paper-to-dusk fade, 4.24–4.31:1. | medium (a11y) | `--pd-dusk` lightened from `#EBC9A8` to `#F3DAC0`: rust text keeps 4.7:1 on it, and the footer starts from the same colour, so the sunset still joins the night. |
+| C3 | No test measured contrast at all; a token comment ("5.6:1 on paper") was the only check, and only for rust. | medium (test gap) | New e2e test samples the pixels rendered behind every text box (screenshot with text hidden) and requires the 10th-percentile contrast to clear 4.5:1, or 3:1 for large text. It runs on desktop and phone. |
+
+## Test honesty
+
+| Check | Bug put back | Result |
+|:--|:--|:--|
+| every piece of text has enough contrast | the old caption colour and dusk (the state before this fix) | failed, listing all eight captions and the feed link |
+| the same | hero haze removed | **passed**: the painted sky behind the hero words is light enough on its own, so the haze is a look, not a contrast need. Correct, not a blind spot. |
+
+Building the test turned up three ways it could lie, each fixed and noted in the test: a
+`!important` button colour beating the "hide all text" rule (raised with `:not(#a):not(#b)`),
+the full-page capture recomputing the hero's `svh` height (frozen first), and the phone's
+2.625 device pixel ratio (`scale: 'css'`). Cards scrolled out of the phone's row are shown for
+the measurement, and fanned cards are straightened, so their boxes match their text.
+
+## What I did NOT verify
+
+- Text inside the painted cards is measured with the cards straightened; their rotation by a few
+  degrees does not change what is behind the words.
+- Windows high-contrast and forced-colors modes.

@@ -19,3 +19,12 @@ checking `complete` right after `networkidle`.
 **Why it bit.** `document.fonts` reports the family as declared but unquoted: `Baloo 2`.
 **How to apply.** Compare against the bare family name. And test fonts at all: a wrong `url()`
 falls back to a system font silently, with no 404 that a request check would always catch.
+
+## Three ways a screenshot-based contrast test lies
+**What happened.** The first run reported 1.0:1 for a button, 1.4:1 for every heading on a
+phone, and 1.5:1 for cards nobody could see.
+**Why it bit.** A `.pd-button { color: … !important }` beat a `* { color: transparent !important }`
+rule; a full-page capture re-lays out `svh` heights; the phone context's device pixel ratio made
+the screenshot 2.625× larger than the CSS boxes; and overflowed cards are never painted.
+**How to apply.** Raise the hiding rule's specificity, freeze viewport-dependent heights before
+measuring, screenshot with `scale: 'css'`, and make clipped content visible for the measurement.
