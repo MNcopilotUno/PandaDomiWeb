@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Panda Domi news</title>
+  <subtitle>Now and then, news from the valley. No email, no account: your feed reader asks, and nobody learns who you are.</subtitle>
+  <link rel="alternate" type="text/html" href="https://mncopilotuno.github.io/PandaDomiWeb/"/>
+  <link rel="self" type="application/atom+xml" href="https://mncopilotuno.github.io/PandaDomiWeb/feed.xml"/>
+  <id>https://mncopilotuno.github.io/PandaDomiWeb/</id>
+  <updated>2026-10-24T12:00:00Z</updated>
+  <author><name>Panda Domi</name></author>
+  <icon>https://mncopilotuno.github.io/PandaDomiWeb/art/mark.svg</icon>
+  <entry>
+    <title>The valley is open</title>
+    <link rel="alternate" type="text/html" href="https://mncopilotuno.github.io/PandaDomiWeb/"/>
+    <id>https://mncopilotuno.github.io/PandaDomiWeb/#news-2026-10-24</id>
+    <updated>2026-10-24T12:00:00Z</updated>
+    <summary>A shy red panda has peeked out from behind its tree. This little page tells the story of Panda Domi: a cosy journal where you share the moment as a panda card, never a photo of your child. The free journal is being made now. This feed will say when there is something to try.</summary>
+  </entry>
+</feed>

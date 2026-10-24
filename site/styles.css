@@ -1,0 +1,407 @@
+/* Panda Domi landing page.
+   Everything is scoped under .pd-grove (plus the skip link) so the scene can
+   move into another site without bringing global styles along. Fonts are the
+   reader's own: nothing is downloaded. */
+
+:root {
+  color-scheme: light;
+  --pd-rust: #C1502E;
+  --pd-rust-deep: #A8442A;
+  --pd-amber: #E08A4F;
+  --pd-chestnut: #4A2A1F;
+  --pd-cream: #FBF3E4;
+  --pd-line: #3B2A22;
+  --pd-sage: #8DB37A;
+  --pd-moss: #5E7F4F;
+  --pd-rose: #E39AA0;
+  --pd-sky: #CFE3EC;
+  --pd-mist: #A9B8C6;
+  --pd-wood: #B98A5A;
+  --pd-paper: #F7EEDC;
+  --pd-indigo: #3E4A78;
+  --pd-indigo-deep: #2C3459;
+  --pd-gold: #F2C66D;
+  --pd-morning: #F2D6A2;
+  --pd-sunset: #EDB98F;
+  --pd-radius: 28px;
+  --pd-font: ui-rounded, "SF Pro Rounded", "Nunito", "Varela Round", "Quicksand", "Segoe UI", system-ui, sans-serif;
+}
+
+html {
+  background: var(--pd-indigo-deep);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  margin: 0;
+  background: var(--pd-paper);
+  color: var(--pd-line);
+  font-family: var(--pd-font);
+  font-size: 1.125rem;
+  line-height: 1.6;
+  -webkit-text-size-adjust: 100%;
+}
+
+.pd-skip {
+  position: absolute;
+  left: 16px;
+  top: -100px;
+  z-index: 10;
+  padding: 12px 20px;
+  border-radius: 999px;
+  background: var(--pd-cream);
+  color: var(--pd-line);
+  font-family: var(--pd-font);
+  font-weight: 700;
+}
+
+.pd-skip:focus { top: 16px; }
+
+/* The grove: one long scroll from morning to bedtime, on cream paper.
+   Each full-width band paints its own part of the day. */
+.pd-grove {
+  position: relative;
+  overflow: hidden;
+  --pd-texture: url("art/paper.svg");
+  background: var(--pd-texture) repeat, var(--pd-paper);
+}
+
+.pd-grove > main {
+  display: block;
+  background: var(--pd-texture) repeat, linear-gradient(to bottom, var(--pd-paper) 0, var(--pd-paper) 78%, var(--pd-sunset) 100%);
+}
+
+.pd-grove img { max-width: 100%; height: auto; }
+
+.pd-grove h1,
+.pd-grove h2,
+.pd-grove h3 {
+  margin: 0 0 0.4em;
+  line-height: 1.15;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.pd-grove h2 { font-size: clamp(1.8rem, 1.2rem + 2.4vw, 2.8rem); }
+.pd-grove h3 { font-size: 1.4rem; }
+.pd-grove p { margin: 0 0 1em; }
+
+.pd-grove a {
+  color: var(--pd-rust-deep);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.pd-grove a:focus-visible,
+.pd-grove [tabindex]:focus-visible,
+.pd-skip:focus-visible {
+  outline: 4px solid var(--pd-rust);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+/* Opening scene */
+.pd-hero {
+  position: relative;
+  min-height: 100svh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  padding: 40px 16px 0;
+  box-sizing: border-box;
+  background: var(--pd-texture) repeat, linear-gradient(to bottom, var(--pd-morning) 0, var(--pd-sky) 70%);
+}
+
+.pd-layer {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  /* natural height on wide screens (no flat crop across the peaks),
+     at least this tall on narrow ones, where only the sides are cropped */
+  object-fit: cover;
+  object-position: center bottom;
+  pointer-events: none;
+}
+
+.pd-grove .pd-far { bottom: 16%; height: auto; min-height: 38%; }
+.pd-grove .pd-near { bottom: 0; height: auto; min-height: 34%; }
+
+.pd-hero-text {
+  position: relative;
+  z-index: 2;
+  max-width: 34rem;
+  text-align: center;
+  justify-self: center;
+}
+
+.pd-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--pd-moss);
+}
+
+.pd-hero h1 {
+  font-size: clamp(3rem, 2rem + 6vw, 5.5rem);
+  color: var(--pd-rust-deep);
+  margin-bottom: 0.15em;
+}
+
+.pd-lede { font-size: 1.3rem; }
+
+.pd-hero-text p,
+.pd-hero h1 { text-shadow: 0 0 10px var(--pd-cream), 0 0 22px var(--pd-cream); }
+
+.pd-tagline {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--pd-moss);
+}
+
+.pd-button {
+  display: inline-block;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: 12px 28px;
+  border: 3px solid var(--pd-line);
+  border-radius: 999px;
+  background: var(--pd-rust);
+  color: var(--pd-cream) !important;
+  font-weight: 800;
+  text-decoration: none;
+  box-shadow: 0 5px 0 var(--pd-line);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pd-button:hover { transform: translateY(2px); box-shadow: 0 3px 0 var(--pd-line); }
+
+.pd-shy {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: min(78vw, 340px);
+  margin-top: 8px;
+  margin-bottom: 6%;
+}
+
+@media (min-width: 860px) {
+  .pd-hero {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    align-items: center;
+    align-content: stretch;
+    padding: 0 6vw;
+  }
+  .pd-hero-text { text-align: left; justify-self: start; align-self: start; padding-top: max(56px, 9svh); }
+  .pd-shy {
+    width: auto;
+    height: min(76svh, 720px);
+    align-self: end;
+    margin: 0 0 4svh;
+  }
+  .pd-grove .pd-far { bottom: 16%; min-height: 36%; }
+  .pd-grove .pd-near { min-height: 36%; }
+}
+
+/* Shared section rhythm */
+.pd-story,
+.pd-cards,
+.pd-promise,
+.pd-follow {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 72px 16px;
+}
+
+.pd-story:focus { outline: none; }
+
+.pd-story > h2,
+.pd-cards > h2,
+.pd-intro { text-align: center; }
+
+.pd-intro { max-width: 38rem; margin: 0 auto 40px; }
+
+/* Story beats */
+.pd-beats {
+  list-style: none;
+  margin: 40px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 56px;
+}
+
+.pd-beat {
+  display: grid;
+  gap: 20px;
+  align-items: center;
+}
+
+.pd-beat img,
+.pd-card > img {
+  display: block;
+  width: 100%;
+  border-radius: var(--pd-radius);
+  border: 3px solid var(--pd-line);
+  background: var(--pd-cream);
+}
+
+@media (min-width: 760px) {
+  .pd-beat { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 40px; }
+  .pd-beat:nth-child(even) img { order: 2; }
+}
+
+/* Example cards */
+.pd-card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+}
+
+.pd-card {
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 14px;
+  border: 3px solid var(--pd-line);
+  border-radius: calc(var(--pd-radius) + 8px);
+  background: var(--pd-cream);
+  box-shadow: 0 8px 0 rgba(59, 42, 34, 0.18);
+  transition: transform 0.25s ease;
+}
+
+.pd-card:hover { transform: rotate(-1deg) translateY(-4px); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-card, .pd-button { transition: none; }
+  .pd-card:hover { transform: none; }
+}
+
+.pd-card > img { border-width: 2px; border-radius: var(--pd-radius); }
+.pd-card-body { padding: 16px 8px 0; flex: 1; }
+.pd-card-body h3 { color: var(--pd-rust-deep); }
+
+.pd-kind {
+  display: inline-block;
+  margin-bottom: 10px !important;
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: var(--pd-sage);
+  color: var(--pd-line);
+  font-size: 0.85rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.pd-card-night .pd-kind { background: var(--pd-gold); }
+
+.pd-made {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  margin: 0 !important;
+  padding: 0 8px 2px;
+  font-size: 0.8rem;
+  color: var(--pd-moss);
+}
+
+/* The promise */
+.pd-promise {
+  display: grid;
+  gap: 24px;
+  align-items: center;
+}
+
+.pd-promise > img { width: min(100%, 420px); justify-self: center; }
+
+@media (min-width: 860px) {
+  .pd-promise { grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 48px; }
+}
+
+.pd-promises {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 14px;
+}
+
+.pd-promises li {
+  position: relative;
+  padding: 14px 18px 14px 52px;
+  border-radius: 20px;
+  background: rgba(251, 243, 228, 0.82);
+  border: 2px solid rgba(59, 42, 34, 0.25);
+}
+
+.pd-promises li::before {
+  content: "";
+  position: absolute;
+  left: 16px;
+  top: 18px;
+  width: 22px;
+  height: 22px;
+  border-radius: 0 60% 0 60%;
+  background: var(--pd-sage);
+  border: 2px solid var(--pd-line);
+  box-sizing: border-box;
+}
+
+.pd-promises strong { color: var(--pd-rust-deep); }
+
+/* Follow along */
+.pd-follow {
+  max-width: 44rem;
+  text-align: center;
+  padding-bottom: 24px;
+}
+
+.pd-follow > * {
+  position: relative;
+}
+
+/* Bedtime */
+.pd-night {
+  position: relative;
+  padding: 0 0 48px;
+  background: var(--pd-indigo-deep);
+  color: var(--pd-cream);
+  text-align: center;
+}
+
+.pd-night > img {
+  display: block;
+  width: 100%;
+  /* the sky shows through the picture; its nearest hill matches the footer */
+  background: var(--pd-texture) repeat, linear-gradient(to bottom, var(--pd-sunset) 0, var(--pd-indigo) 45%, var(--pd-indigo-deep) 85%);
+}
+
+.pd-night > p { padding: 0 16px; }
+
+.pd-goodnight {
+  font-size: clamp(1.6rem, 1.2rem + 1.6vw, 2.2rem);
+  font-weight: 800;
+  color: var(--pd-gold);
+  margin-top: -2rem !important;
+}
+
+.pd-small {
+  max-width: 40rem;
+  margin: 0 auto !important;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
