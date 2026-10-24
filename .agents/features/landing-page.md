@@ -15,10 +15,11 @@ someone in the family understands the idea from it without explanation.
 
 | Decision | Why |
 |:--|:--|
-| Plain static HTML + CSS, **no JavaScript** | Nothing to phone home, nothing to keep state, nothing to break offline. The scroll scene (morning → day → sunset → night) is done with section backgrounds. |
-| Art **drawn in code** as SVG (`art/*.mjs` → `site/art/*.svg`) | The page "needs its own art" now, before any images are generated. Code-drawn art follows `STYLE.md` (palette, warm dark-brown wobbly pencil lines, watercolour washes on cream paper, red panda markings, light from upper left) and is consistent by construction: one set of filters, one character module. Reproducible: `pnpm art:check` fails CI if the committed SVGs drift from the code. |
-| Shy panda as **two layers** (`shy-head.svg` behind `shy-tree.svg`), peek animated by the page's CSS | No script needed, and the page's `prefers-reduced-motion` query is honoured. A first version animated inside the SVG; Chromium did not apply the page's reduced-motion setting inside an `<img>`, so the panda peeked regardless. |
-| System fonts only | No font download, no third-party request. |
+| Plain static HTML + CSS, **no JavaScript** | Nothing to phone home, nothing to keep state, nothing to break offline. The scroll runs from a morning valley to a night footer with section backgrounds. |
+| Art is the **game's accepted art**, synced, not drawn here | Round 2 replaced the code-drawn SVGs with the painted assets accepted in PandaDomi (`art/assets/*.webp`, status `accepted` in its `assets.json`). `art/assets.json` here lists the 23 the landing uses and the width each is shown at; `scripts/sync-art.py` reads them with `git show` at a pinned PandaDomi commit (never uncommitted work), resizes them for the web (never enlarges) and records a sha256 per file. `pnpm art:check` fails CI if a file drifted, is missing, is not from the game, is referenced but not shipped, or is shipped but unused. |
+| Cards and keepsakes follow the game's real templates | Each example card uses its template's art and den decoration (`first-steps` → `cub-walking` + `tiny-footprints`, `funny-moment` → `cub-tumble` + `paper-crown`, `child-said` → `cub-speaking` + `speech-bubble-note`) on `card-bg-meadow` at 9:16, laid out like the game's `MomentCard`. The shelf shows eight decorations captioned with the template titles they come from. |
+| Hero: the game's 16:9 stage of three layers, the shy panda peeks from a clipped window | Sky, valley and grove cover the hero without being squashed: a phone shows the middle of the painting, a wide screen all of it. The panda slides out of a window that starts at the trunk's right edge (the game's own coordinates). CSS only; `prefers-reduced-motion` shows it resting in place. |
+| The game's own fonts, self-hosted | Baloo 2 800 for headings, Nunito for text, copied with their OFL licences, so the landing and the app read as one product. `font-src 'self'` in the CSP. |
 | Follow along = an **Atom feed** (`feed.xml`) | Answers the roadmap's open question with the only option that needs no email, no account and no server: the reader's feed app polls a static file. |
 | No external links at all | Nothing to leak a referrer to, and the page practices what child mode will: no links out. |
 | Served and tested under `/PandaDomiWeb/` | Same path as GitHub Pages, so relative URLs are tested as deployed. |
@@ -28,15 +29,13 @@ someone in the family understands the idea from it without explanation.
 
 ```mermaid
 flowchart LR
+  game[(PandaDomi<br/>art/assets/*.webp<br/>src/fonts/*.woff2)] -->|git show at a pinned commit| sync[scripts/sync-art.py<br/>resize + sha256]
   subgraph repo[PandaDomiWeb]
-    lib[art/lib.mjs<br/>palette + filters] --> chars[art/characters.mjs]
-    lib --> nature[art/nature.mjs]
-    chars --> scenes[art/scenes.mjs]
-    nature --> scenes
-    scenes --> build[art/build.mjs]
-    build -->|writes| svgs[site/art/*.svg]
+    sync -->|writes| files[site/art/*.webp<br/>site/fonts/*]
+    sync -->|records commit + hashes| reg[art/assets.json]
     html[site/index.html] --> css[site/styles.css]
-    html --> svgs
+    html --> files
+    css --> files
     feed[site/feed.xml]
   end
   subgraph ci[GitHub Actions]
@@ -69,30 +68,31 @@ it or it doesn't load — nothing half-works.
 
 **Writes to `events`.** None. This repository has no app and no storage.
 
-**Art.** Code-drawn SVG is not the final painted style the roadmap expects from the generation
-pipeline. It is on-palette and on-style, but simpler. When painted layers are accepted (2560×1440
-landing layers per `STYLE.md` §5), they replace the SVGs file-for-file with the same names.
+**Art.** Only art with status `accepted` in the game can be synced (the script refuses
+placeholders). The game has no painted night scene yet (`valley-night` is a placeholder), so the
+footer is a CSS night sky with two accepted props. The art is pinned: when the game accepts new or
+changed art, nothing here moves until someone re-runs the sync and commits.
 
-**Performance.** SVG filters (turbulence, displacement, morphology) are rasterised once per image
-on decode. Total site ≈ 392 KB raw, ≈ 43 KB gzipped. Not measured on a low-end phone.
+**Performance.** About 2.4 MB of WebP in total, of which about 0.9 MB is the opening scene (sky,
+valley, grove, panda); everything below it is `loading="lazy"`. Fonts about 108 KB. Not measured on
+a low-end phone or a slow connection.
 
 ## Gap analysis
 
-- No painted art yet; no character sheets in this repo (they belong to the art pipeline in
-  PandaDomi).
+- No painted night scene in the game yet; the footer will take `valley-night` once it is accepted.
 - No Gitea mirror for this repository yet.
-- Only Chromium is tested. Safari and Firefox rendering of the filters is unverified.
+- Only Chromium is tested. Safari and Firefox are unverified.
 - The family-understands-it half of the gate is a person, not a test.
 
 ## Verification matrix
 
 | Case | Kind | Where |
 |:--|:--|:--|
-| No request to any other origin, page actually loaded ≥10 of its own SVGs | e2e | `loads nothing from any other origin` |
+| No request to any other origin; the page actually loaded ≥20 of its WebP files and ≥2 fonts | e2e | `loads nothing from any other origin` |
 | No 4xx/5xx, no failed request | e2e | `every file it asks for exists` |
 | Every picture decodes (none broken) | e2e | `every picture draws` |
 | No console error/warning, no CSP violation | e2e | `no console errors or security policy violations` |
-| Story, three cards each with the "made with" mark, promise, feed link | e2e | `tells the whole story` |
+| Name, headline, three story plates, eight keepsakes, three cards each with the "made with" mark, five promises, feed link | e2e | `tells the whole story` |
 | No `<script>`, no form/input/video/iframe/embed | e2e | `runs no script and offers no way to send anything` |
 | No cookies, localStorage, sessionStorage, IndexedDB | e2e | `leaves nothing behind in the browser` |
 | No link leaves the site | e2e | `every link stays on this site` |
@@ -100,9 +100,11 @@ on decode. Total site ≈ 392 KB raw, ≈ 43 KB gzipped. Not measured on a low-e
 | Skip link first on Tab, moves focus to the story | e2e (desktop) | `the skip link is the first stop for the keyboard` |
 | 360 px phone: no sideways scroll and nothing cut off at the edges | e2e | `fits a small phone without sideways scrolling` |
 | Feed is well-formed Atom with its entry | e2e | `the news feed is well-formed Atom` |
-| Committed SVGs match the drawing code | CI | `pnpm art:check` |
+| Art and fonts match the hashes recorded at the sync; nothing missing, stray, unreferenced or unused | CI | `pnpm art:check` |
 | No file over 5 MB | CI + hook | `pnpm check:size` |
-| Peek runs normally; with reduced motion the panda rests in place, fully visible | e2e | `the shy panda peeks once, and rests in place when motion is reduced` |
+| Peek runs normally; with reduced motion the panda is already out from behind the trunk | e2e | `the shy panda peeks once, and rests in place when motion is reduced` |
+| Baloo 2 and Nunito actually load (a wrong path would fall back silently) | e2e | `the game's own fonts are the ones in use` |
+| On a phone the card row scrolls, and a keyboard can scroll it | e2e | `the cards can be scrolled with a keyboard on a phone` |
 | Someone in the family understands it unaided | manual | the Phase 0 gate |
 | Zero third-party requests in a real browser's DevTools | manual | the Phase 0 gate |
 

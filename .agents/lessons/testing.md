@@ -13,3 +13,9 @@ decoded, and full-page screenshots showed those pictures blank.
 **Why it bit.** Heavy SVG filters take time to rasterise after the bytes arrive.
 **How to apply.** Await `img.decode()` for every picture (it rejects for a broken one) instead of
 checking `complete` right after `networkidle`.
+
+## `FontFace.family` has no quotes
+**What happened.** The font test expected `"Baloo 2" 800` and failed with the font loaded fine.
+**Why it bit.** `document.fonts` reports the family as declared but unquoted: `Baloo 2`.
+**How to apply.** Compare against the bare family name. And test fonts at all: a wrong `url()`
+falls back to a system font silently, with no 404 that a request check would always catch.
