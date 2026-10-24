@@ -74,3 +74,41 @@ PandaDomi's `art/prompts/`).
   settings; the first deploy will tell.
 - **Reduced motion** is checked in Chromium (emulated) only, not with a real OS setting.
 - **The Phase 0 gate's human half**: whether someone in the family understands it unaided.
+
+---
+
+# Round 2: the game's art, a new layout, Node 24 actions
+
+Second PR on the same branch, restarted from `main` after the first one merged.
+
+## Findings
+
+| # | Finding | Severity | Resolution |
+|:--|:--|:--|:--|
+| R1 | The hero's cream haze showed a hard rectangle over the sky on desktop. | medium (visible) | Fixed: `closest-side` gradient fading to zero inside its box. Lesson in `lessons/design.md`. |
+| R2 | The phone-width test would have flagged the painted stage and the sideways card row, which overflow by design. A blanket exclusion could hide a real overflow. | medium (test honesty) | Excluded only what lives inside `.pd-stage` and inside each `.pd-card`; the card row itself is still checked. Re-verified with a 480 px shelf: fails. |
+| R3 | A wrong font path falls back to a system font silently: the request test only sees a 404 if the font is ever requested. | medium | New test reads `document.fonts` for loaded Baloo 2 800 and Nunito. Fails with the path broken. |
+| R4 | The card row on a phone is a scroll region; without `tabindex` a keyboard user cannot scroll it. | medium (a11y) | `role="region"`, label and `tabindex="0"`; new test scrolls it with ArrowRight. Fails with `tabindex` removed. |
+| R5 | Synced art could silently drift from what the game accepted, or a placeholder could slip in. | medium | The sync reads with `git show` at a pinned commit, refuses anything not `accepted`, and records hashes; `art:check` fails on a changed, missing, stray, unreferenced or unused file (each case run). |
+| R6 | The art is re-encoded (WebP q84, resized). Some detail is lost against the game's originals. | low | Accepted: sizes are 2× the largest display size, except the hero layers, which stay at full width. |
+| R7 | Page weight rose from ≈0.4 MB to ≈2.5 MB, ≈0.9 MB of it in the opening scene. | medium | Below the fold everything is lazy. Not measured on a slow phone; noted as a gap. |
+| R8 | The CSP needed `font-src 'self'` for the fonts. | — | Added; the console test confirms no CSP violation. |
+| R9 | Copy: example card words are invented; two are the game's own landing examples. "Three wobbly steps from the sofa to the cat" is new. No real quotes or names. | — | OK for a public repo. |
+| R10 | `upload-pages-artifact@v5` is a composite action; it runs `upload-artifact@v7` (Node 24) inside. | — | Checked its `action.yml`; every action in the workflow now runs on Node 24. |
+
+## Test honesty (round 2)
+
+| Check | Bug put back | Result |
+|:--|:--|:--|
+| the game's own fonts are the ones in use | Baloo 2 `url()` pointed at a missing file | failed |
+| the shy panda peeks once, and rests in place when motion is reduced | reduced-motion rule removed | failed |
+| the cards can be scrolled with a keyboard on a phone | `tabindex` removed from the row | failed |
+| fits a small phone | `.pd-shelf { min-width: 480px }` | failed |
+| `pnpm art:check` | a byte appended to a WebP; a stray file; a reference renamed | failed, naming each |
+
+## What I did NOT verify (round 2)
+
+- Safari and Firefox, still: the 16:9 stage uses `aspect-ratio`, `svh` and container query units
+  (`cqi`) on the cards.
+- Load time on a real phone on a slow connection.
+- That the deployed site matches until the Pages deploy of this round has run.
