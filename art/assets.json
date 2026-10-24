@@ -1,5 +1,5 @@
 {
-  "$comment": "Which accepted Panda Domi assets the landing page ships, and at what width. Written by scripts/sync-art.py from a PandaDomi checkout; checked by scripts/check-art.mjs. Edit the list and widths, then re-run the sync; never edit the hashes by hand.",
+  "$comment": "Which accepted Panda Domi assets the landing page ships, and at what width. Written by scripts/sync-art.py from a PandaDomi checkout; checked by scripts/check-art.mjs. Edit the list and widths, then re-run the sync; never edit the hashes by hand. 'pending' lists art the page will use once the game accepts it; `python3 scripts/sync-art.py --status` reports where each stands.",
   "source": {
     "repo": "MNcopilotUno/PandaDomi",
     "commit": "18614d5b531755df9d107c2fe4fd70daaa59853c"
@@ -119,6 +119,18 @@
       "id": "app-icon",
       "width": 192,
       "use": "site icon and the card mark"
+    }
+  ],
+  "pending": [
+    {
+      "id": "valley-night",
+      "width": 1600,
+      "use": "the good-night footer: the valley asleep, behind the owl and the cub"
+    },
+    {
+      "id": "owl-storytelling",
+      "width": 640,
+      "use": "the good-night footer: the owl telling a bedtime story from its branch"
     }
   ],
   "fonts": [

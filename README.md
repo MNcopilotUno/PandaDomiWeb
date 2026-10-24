@@ -43,7 +43,11 @@ pnpm art:sync                       # = python3 scripts/sync-art.py ../PandaDomi
 pnpm art:check
 ```
 
-Edit the list or a width in `art/assets.json`, then sync again. The sync needs Python 3 with
+Edit the list or a width in `art/assets.json`, then sync again.
+
+Art the page is waiting for sits under `pending` in `art/assets.json` (today: the night valley and
+the storytelling owl, for the good-night footer). `pnpm art:status` prints where each stands in the
+game and exits 0 only when all are accepted; then move them into `images`, sync, and use them. The sync needs Python 3 with
 Pillow (WebP support); CI only checks hashes and never needs the game repository.
 
 ## Commands

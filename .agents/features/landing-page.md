@@ -79,7 +79,12 @@ a low-end phone or a slow connection.
 
 ## Gap analysis
 
-- No painted night scene in the game yet; the footer will take `valley-night` once it is accepted.
+- No painted night in the game yet. `valley-night` (the valley asleep, seen from the den's
+  doorway) and `owl-storytelling` (the owl on a branch with its lantern) are `pending` in
+  `art/assets.json`. Once the game accepts them, the footer becomes: the night valley as a
+  full-bleed painting, the owl on its branch telling the story, the sleeping cub below it in the
+  calm lower centre the painting keeps free, and "Good night, little panda." The CSS stars and the
+  standalone moon lantern go (the owl brings its own lantern). `pnpm art:status` says when.
 - No Gitea mirror for this repository yet.
 - Only Chromium is tested. Safari and Firefox are unverified.
 - The family-understands-it half of the gate is a person, not a test.
