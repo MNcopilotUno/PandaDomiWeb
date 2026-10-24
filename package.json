@@ -1,0 +1,17 @@
+{
+  "name": "panda-domi-web",
+  "private": true,
+  "type": "module",
+  "description": "The Panda Domi landing page: a standalone 2D scene, deployed to GitHub Pages.",
+  "scripts": {
+    "art": "node art/build.mjs",
+    "art:check": "node art/build.mjs --check",
+    "serve": "node scripts/serve.mjs",
+    "check:size": "node scripts/check-size.mjs",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0"
+  },
+  "packageManager": "pnpm@10.28.0"
+}
