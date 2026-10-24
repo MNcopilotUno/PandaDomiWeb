@@ -1,7 +1,11 @@
 """Copy the landing page's art and fonts out of a PandaDomi checkout.
 
 Usage: python3 scripts/sync-art.py [path-to-PandaDomi] [git-ref]
+       python3 scripts/sync-art.py --status [path-to-PandaDomi] [git-ref]
        (defaults: ../PandaDomi and origin/main)
+
+--status changes nothing: it prints the game's status for each asset under
+"pending" in art/assets.json, and exits 0 only when every one is accepted.
 
 Reads each file at the given ref with `git show`, so the result never depends on
 uncommitted work in that checkout. Images are resized to the width set in
@@ -27,13 +31,27 @@ def git(repo: Path, *args: str) -> bytes:
     return subprocess.run(["git", "-C", str(repo), *args], check=True, capture_output=True).stdout
 
 
+def status(registry: dict, accepted: dict, commit: str) -> None:
+    pending = registry.get("pending", [])
+    ready = 0
+    for item in pending:
+        state = accepted.get(item["id"], {}).get("status", "not in the game's registry")
+        ready += state == "accepted"
+        print(f"{item['id']:24} {state}")
+    print(f"{ready} of {len(pending)} pending assets accepted at {commit[:7]}")
+    sys.exit(0 if pending and ready == len(pending) else 1)
+
+
 def main() -> None:
-    repo = Path(sys.argv[1] if len(sys.argv) > 1 else ROOT.parent / "PandaDomi").resolve()
-    ref = sys.argv[2] if len(sys.argv) > 2 else "origin/main"
+    args = [a for a in sys.argv[1:] if a != "--status"]
+    repo = Path(args[0] if args else ROOT.parent / "PandaDomi").resolve()
+    ref = args[1] if len(args) > 1 else "origin/main"
     commit = git(repo, "rev-parse", ref).decode().strip()
     registry = json.loads(REGISTRY.read_text())
 
     accepted = {a["id"]: a for a in json.loads(git(repo, "show", f"{commit}:art/assets.json"))["assets"]}
+    if "--status" in sys.argv:
+        status(registry, accepted, commit)
     files: dict[str, str] = {}
 
     (ROOT / "site" / "art").mkdir(parents=True, exist_ok=True)

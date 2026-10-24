@@ -8,7 +8,8 @@
     "serve": "node scripts/serve.mjs",
     "check:size": "node scripts/check-size.mjs",
     "test": "playwright test",
-    "art:sync": "python3 scripts/sync-art.py"
+    "art:sync": "python3 scripts/sync-art.py",
+    "art:status": "python3 scripts/sync-art.py --status"
   },
   "devDependencies": {
     "@playwright/test": "1.63.0"
