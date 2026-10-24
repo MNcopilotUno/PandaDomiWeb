@@ -120,8 +120,9 @@ test('fits a small phone without sideways scrolling', async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
   // .pd-grove clips overflow, so also check nothing readable is cut off at the
-  // edges. The hero layers are meant to bleed past the screen and are skipped.
-  const cut = await page.$$eval('h1, h2, h3, p, li, a, img:not(.pd-layer)', (els) =>
+  // edges. The hero layers bleed past the screen on purpose, and the panda's
+  // head slides in from behind the trunk; the tree layer covers its box.
+  const cut = await page.$$eval('h1, h2, h3, p, li, a, img:not(.pd-layer):not(.pd-shy-head)', (els) =>
     els
       .filter((e) => {
         const r = e.getBoundingClientRect();
@@ -147,4 +148,16 @@ test('the news feed is well-formed Atom', async ({ page, request }) => {
     };
   }, xml);
   expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 1, title: 'The valley is open' });
+});
+
+test('the shy panda peeks once, and rests in place when motion is reduced', async ({ browser }) => {
+  for (const [reducedMotion, expected] of [['no-preference', 'pd-peek'], ['reduce', 'none']] as const) {
+    const context = await browser.newContext({ reducedMotion });
+    const page = await context.newPage();
+    await page.goto('./');
+    const head = page.locator('.pd-shy-head');
+    await expect(head).toHaveCSS('animation-name', expected);
+    if (reducedMotion === 'reduce') await expect(head).toHaveCSS('opacity', '1');
+    await context.close();
+  }
 });

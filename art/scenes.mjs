@@ -27,23 +27,19 @@ function valleyNear() {
   return { w: 1600, h: 500, body: s, seed: 23 };
 }
 
-// The shy panda peeking out from behind an old tree. The peek is a short CSS
-// animation inside the file; with reduced motion it simply rests in place.
-function shyPanda() {
+// The shy panda peeking out from behind an old tree, as two layers of the
+// same size: the head (behind) and the tree with paws and tail tip (in front).
+// The page's own CSS slides the head out, so prefers-reduced-motion is honoured
+// there; a media query inside an <img> SVG does not follow the page's setting.
+function shyHead() {
+  const s = g('translate(440 440) rotate(14) scale(0.95)', pandaHead({ eyes: 'open' }));
+  return { w: 640, h: 900, body: s, seed: 5 };
+}
+
+function shyTree() {
   const r = rng(5);
-  let s = `<style>
-  .peek { animation: peek 2.6s cubic-bezier(.3,.7,.3,1) .5s both; }
-  .paws { animation: paws 1s ease-out 1.6s both; }
-  .tailtip { animation: tailtip 3s ease-in-out 2.4s both; }
-  @keyframes peek { 0% { transform: translate(-150px, 18px); } 55% { transform: translate(-150px, 18px); } 85% { transform: translate(6px, -2px); } 100% { transform: translate(0, 0); } }
-  @keyframes paws { from { opacity: 0; } to { opacity: 1; } }
-  @keyframes tailtip { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-6deg); } }
-  @media (prefers-reduced-motion: reduce) { .peek, .paws, .tailtip { animation: none; } }
-</style>`;
   // the tail tip, poking out on the far side of the trunk
-  s += `<g class="tailtip" style="transform-origin: 220px 770px">${tail('M 236 770 C 176 780 132 750 120 696', 40, { rings: 3 })}</g>`;
-  // the panda, behind the trunk
-  s += `<g class="peek">${g('translate(440 440) rotate(14) scale(0.95)', pandaHead({ eyes: 'open' }))}</g>`;
+  let s = tail('M 236 770 C 176 780 132 750 120 696', 40, { rings: 3 });
   // the trunk, flaring into roots
   s += part('M 120 900 C 190 870 222 800 228 700 C 236 560 222 420 236 250 L 400 250 C 410 420 396 560 404 700 C 410 800 450 870 530 900 Z', C.wood, { lw: 3.4 });
   s += part('M 258 300 C 272 520 262 700 244 880 L 292 880 C 298 700 304 500 292 300 Z', C.woodPale, { line: false, opacity: 0.55 });
@@ -60,7 +56,8 @@ function shyPanda() {
   for (let i = 0; i < 24; i++) s += leaf(70 + r() * 500, 60 + r() * 230, 28 + r() * 18, -180 + r() * 360, r() > 0.5 ? C.sage : C.sageLight, { vein: false, lw: 2 });
   s += flowerCluster(150, 230, 18, r) + flowerCluster(510, 150, 16, r) + flowerCluster(380, 90, 14, r);
   // two front paws holding on to the bark
-  s += `<g class="paws">${blob(408, 400, 20, 15, C.chestnut)}${blob(406, 500, 20, 15, C.chestnut)}${stroke('M 400 392 l 2 8 M 410 391 l 1 8 M 398 492 l 2 8 M 408 491 l 1 8', { lw: 1.8, color: C.chestnutSoft })}</g>`;
+  s += blob(408, 400, 20, 15, C.chestnut) + blob(406, 500, 20, 15, C.chestnut);
+  s += stroke('M 400 392 l 2 8 M 410 391 l 1 8 M 398 492 l 2 8 M 408 491 l 1 8', { lw: 1.8, color: C.chestnutSoft });
   s += grass(120, 520, 900, r, 18);
   return { w: 640, h: 900, body: s, seed: 5 };
 }
@@ -266,7 +263,8 @@ function paper() {
 export const assets = {
   'valley-far': valleyFar,
   'valley-near': valleyNear,
-  'shy-panda': shyPanda,
+  'shy-head': shyHead,
+  'shy-tree': shyTree,
   den,
   shelf,
   visit,

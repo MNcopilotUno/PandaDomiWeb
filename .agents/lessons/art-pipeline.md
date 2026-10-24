@@ -23,3 +23,11 @@ continued in "the same" colour.
 own paper texture: two different surfaces of nominally one colour.
 **How to apply.** Where a picture runs on into a page colour, draw that last shape flat (no
 filter) in exactly the page's token colour, and give the page a solid colour below it.
+
+## Animation inside an `<img>` SVG ignores the page's reduced-motion setting
+**What happened.** The shy panda's peek was a CSS animation inside its SVG, with a
+`prefers-reduced-motion` query beside it. With reduced motion requested, Chromium still played it.
+**Why it bit.** An SVG loaded as an image is a separate document; its media queries did not see
+the page's (emulated) preference, so the opt-out never fired.
+**How to apply.** Keep animated parts as separate layers and animate them from the page's CSS,
+where the reduced-motion query is reliable. Test it with `reducedMotion: 'reduce'`.

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 900" width="640" height="900" aria-hidden="true">
+<defs>
+  <filter id="paint" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.018" numOctaves="2" seed="5" result="warp"/>
+    <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="3" seed="12" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" values="0 0 0 0.42 0.7  0 0 0 0.42 0.7  0 0 0 0.42 0.7  0 0 0 0 1" result="tone"/>
+    <feBlend in="shape" in2="tone" mode="multiply" result="toned"/>
+    <feComposite in="toned" in2="shape" operator="in" result="painted"/>
+    <feMorphology in="shape" operator="erode" radius="2.2" result="core"/>
+    <feComposite in="shape" in2="core" operator="out" result="rim"/>
+    <feGaussianBlur in="rim" stdDeviation="1.1" result="rimSoft"/>
+    <feColorMatrix in="rimSoft" type="matrix" values="0 0 0 0 0.25  0 0 0 0 0.14  0 0 0 0 0.1  0 0 0 0.24 0" result="pool"/>
+    <feComposite in="pool" in2="shape" operator="in" result="poolIn"/>
+    <feMerge><feMergeNode in="painted"/><feMergeNode in="poolIn"/></feMerge>
+  </filter>
+  <filter id="pencil" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="2" seed="8" result="warp"/>
+    <feDisplacementMap in="SourceGraphic" in2="warp" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="wobble"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="1" seed="10" result="tooth"/>
+    <feColorMatrix in="tooth" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.1 1.75" result="toothA"/>
+    <feComposite in="wobble" in2="toothA" operator="in"/>
+  </filter>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+  <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+    <feGaussianBlur stdDeviation="14"/>
+  </filter>
+</defs>
+<g transform="translate(440 440) rotate(14) scale(0.95)"><path d="M -84 -22 C -98 -62 -90 -96 -70 -102 C -52 -100 -36 -82 -28 -60 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M -84 -22 C -98 -62 -90 -96 -70 -102 C -52 -100 -36 -82 -28 -60 Z" fill="none" stroke="#3B2A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/><path d="M -74 -34 C -84 -62 -80 -84 -68 -88 C -56 -84 -46 -70 -40 -56 Z" fill="#4A2A1F" filter="url(#paint)"/><path d="M 84 -22 C 98 -62 90 -96 70 -102 C 52 -100 36 -82 28 -60 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M 84 -22 C 98 -62 90 -96 70 -102 C 52 -100 36 -82 28 -60 Z" fill="none" stroke="#3B2A22" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/><path d="M 74 -34 C 84 -62 80 -84 68 -88 C 56 -84 46 -70 40 -56 Z" fill="#4A2A1F" filter="url(#paint)"/><path d="M 0 -70 C 48 -70 82 -44 86 -8 C 89 12 102 30 92 42 C 80 62 46 74 0 74 C -46 74 -80 62 -92 42 C -102 30 -89 12 -86 -8 C -82 -44 -48 -70 0 -70 Z" fill="#C1502E" filter="url(#paint)"/><path d="M -40 -40 C -30 -66 30 -66 40 -40 C 30 -24 -30 -24 -40 -40 Z" fill="#E08A4F" filter="url(#paint)" opacity="0.7"/><path d="M -92 42 C -88 24 -72 14 -56 18 C -42 22 -30 16 -18 10 C -8 6 8 6 18 10 C 30 16 42 22 56 18 C 72 14 88 24 92 42 C 80 62 46 74 0 74 C -46 74 -80 62 -92 42 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M -43 -30 A 13 8.5 0 1 0 -17 -30 A 13 8.5 0 1 0 -43 -30 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M 17 -30 A 13 8.5 0 1 0 43 -30 A 13 8.5 0 1 0 17 -30 Z" fill="#FBF3E4" filter="url(#paint)"/><g opacity="0.8"><g filter="url(#paint)"><rect x="-41" y="2" width="29" height="49" fill="none"/><path d="M -33 9 C -34 22 -29 34 -19 44" fill="none" stroke="#9A3D24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></g><g opacity="0.8"><g filter="url(#paint)"><rect x="12" y="2" width="29" height="49" fill="none"/><path d="M 33 9 C 34 22 29 34 19 44" fill="none" stroke="#9A3D24" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/></g></g><path d="M 0 -70 C 48 -70 82 -44 86 -8 C 89 12 102 30 92 42 C 80 62 46 74 0 74 C -46 74 -80 62 -92 42 C -102 30 -89 12 -86 -8 C -82 -44 -48 -70 0 -70 Z" fill="none" stroke="#3B2A22" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/><path d="M -40 -3 A 10 12 0 1 0 -20 -3 A 10 12 0 1 0 -40 -3 Z" fill="#2E1D16" filter="url(#paint)"/><path d="M -40 -3 A 10 12 0 1 0 -20 -3 A 10 12 0 1 0 -40 -3 Z" fill="none" stroke="#3B2A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/><path d="M -36.8 -8 A 3.8 3.8 0 1 0 -29.2 -8 A 3.8 3.8 0 1 0 -36.8 -8 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M -28.3 2 A 1.8 1.8 0 1 0 -24.7 2 A 1.8 1.8 0 1 0 -28.3 2 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M 20 -3 A 10 12 0 1 0 40 -3 A 10 12 0 1 0 20 -3 Z" fill="#2E1D16" filter="url(#paint)"/><path d="M 20 -3 A 10 12 0 1 0 40 -3 A 10 12 0 1 0 20 -3 Z" fill="none" stroke="#3B2A22" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/><path d="M 23.2 -8 A 3.8 3.8 0 1 0 30.8 -8 A 3.8 3.8 0 1 0 23.2 -8 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M 31.7 2 A 1.8 1.8 0 1 0 35.3 2 A 1.8 1.8 0 1 0 31.7 2 Z" fill="#FBF3E4" filter="url(#paint)"/><path d="M -65 36 A 11 8 0 1 0 -43 36 A 11 8 0 1 0 -65 36 Z" fill="#E39AA0" filter="url(#paint)" opacity="0.55"/><path d="M 43 36 A 11 8 0 1 0 65 36 A 11 8 0 1 0 43 36 Z" fill="#E39AA0" filter="url(#paint)" opacity="0.55"/><path d="M -11 22 C -6 17 6 17 11 22 C 10 30 4 33 0 33 C -4 33 -10 30 -11 22 Z" fill="#3B2A22" filter="url(#paint)"/><path d="M -11 22 C -6 17 6 17 11 22 C 10 30 4 33 0 33 C -4 33 -10 30 -11 22 Z" fill="none" stroke="#3B2A22" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/><path d="M -5.6 22 A 2.6 1.6 0 1 0 -0.4 22 A 2.6 1.6 0 1 0 -5.6 22 Z" fill="#FBF3E4" filter="url(#paint)" opacity="0.8"/><path d="M 0 33 L 0 38 M -11 39 Q -5 46 0 38 Q 5 46 11 39" fill="none" stroke="#3B2A22" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" filter="url(#pencil)"/></g>
+</svg>

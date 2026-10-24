@@ -17,7 +17,7 @@ someone in the family understands the idea from it without explanation.
 |:--|:--|
 | Plain static HTML + CSS, **no JavaScript** | Nothing to phone home, nothing to keep state, nothing to break offline. The scroll scene (morning → day → sunset → night) is done with section backgrounds. |
 | Art **drawn in code** as SVG (`art/*.mjs` → `site/art/*.svg`) | The page "needs its own art" now, before any images are generated. Code-drawn art follows `STYLE.md` (palette, warm dark-brown wobbly pencil lines, watercolour washes on cream paper, red panda markings, light from upper left) and is consistent by construction: one set of filters, one character module. Reproducible: `pnpm art:check` fails CI if the committed SVGs drift from the code. |
-| Peek animation as CSS **inside** `shy-panda.svg` | Works in `<img>` without script; `prefers-reduced-motion` inside the SVG shows the panda resting in place. |
+| Shy panda as **two layers** (`shy-head.svg` behind `shy-tree.svg`), peek animated by the page's CSS | No script needed, and the page's `prefers-reduced-motion` query is honoured. A first version animated inside the SVG; Chromium did not apply the page's reduced-motion setting inside an `<img>`, so the panda peeked regardless. |
 | System fonts only | No font download, no third-party request. |
 | Follow along = an **Atom feed** (`feed.xml`) | Answers the roadmap's open question with the only option that needs no email, no account and no server: the reader's feed app polls a static file. |
 | No external links at all | Nothing to leak a referrer to, and the page practices what child mode will: no links out. |
@@ -102,7 +102,7 @@ on decode. Total site ≈ 392 KB raw, ≈ 43 KB gzipped. Not measured on a low-e
 | Feed is well-formed Atom with its entry | e2e | `the news feed is well-formed Atom` |
 | Committed SVGs match the drawing code | CI | `pnpm art:check` |
 | No file over 5 MB | CI + hook | `pnpm check:size` |
-| Reduced motion: panda rests without the peek | manual | OS setting, reload |
+| Peek runs normally; with reduced motion the panda rests in place, fully visible | e2e | `the shy panda peeks once, and rests in place when motion is reduced` |
 | Someone in the family understands it unaided | manual | the Phase 0 gate |
 | Zero third-party requests in a real browser's DevTools | manual | the Phase 0 gate |
 
