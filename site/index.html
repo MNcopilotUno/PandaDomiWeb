@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <title>Panda Domi · share the moment, not your child</title>
-  <meta name="description" content="A cosy red panda journal that grows with your family. Share a moment as a little panda card, never a photo of your child. Works offline, no accounts, no ads, no tracking.">
-  <meta name="theme-color" content="#F2D6A2">
-  <link rel="icon" href="art/mark.svg" type="image/svg+xml">
+  <meta name="description" content="A cosy red panda journal that grows up with your family. Share a moment as a little panda card, never a photo of your child. Works offline, no accounts, no ads, no tracking.">
+  <meta name="theme-color" content="#CFE3EC">
+  <link rel="icon" href="art/app-icon.webp" type="image/webp">
   <link rel="alternate" type="application/atom+xml" href="feed.xml" title="Panda Domi news">
   <link rel="stylesheet" href="styles.css">
 </head>
@@ -16,119 +16,161 @@
   <a class="pd-skip" href="#story">Skip to the story</a>
 
   <!-- The whole scene lives inside .pd-grove so it can later move, unchanged,
-       into the bamboo grove of the Domi villa site. -->
+       into the bamboo grove of the Domi villa site. Every picture is accepted
+       art from the game, listed in art/assets.json. -->
   <div class="pd-grove">
 
     <header class="pd-hero">
-      <img class="pd-layer pd-far" src="art/valley-far.svg" alt="" width="1600" height="600">
-      <img class="pd-layer pd-near" src="art/valley-near.svg" alt="" width="1600" height="500">
-      <div class="pd-hero-text">
-        <p class="pd-brand"><img src="art/mark.svg" alt="" width="56" height="56"><span>a family journal</span></p>
-        <h1>Panda Domi</h1>
-        <p class="pd-lede">A cosy red panda journal that grows up with your family.</p>
-        <p class="pd-tagline">Share the moment, not your child.</p>
-        <a class="pd-button" href="#story">Meet the pandas</a>
+      <div class="pd-stage">
+        <img class="pd-layer" src="art/landing-sky.webp" alt="" width="1673" height="941" fetchpriority="high">
+        <img class="pd-layer" src="art/landing-valley.webp" alt="" width="1672" height="940" fetchpriority="high">
+        <div class="pd-peek">
+          <img src="art/big-panda-peek.webp" alt="" width="768" height="768">
+        </div>
+        <img class="pd-layer" src="art/landing-grove.webp" alt="A painted Himalayan valley: an old mossy tree and bamboo in the front, green hills, a stream and misty mountains far away. A shy red panda peeks out from behind the tree." width="1673" height="941" fetchpriority="high">
       </div>
-      <div class="pd-shy">
-        <img class="pd-shy-head" src="art/shy-head.svg" alt="" width="640" height="900">
-        <img class="pd-shy-tree" src="art/shy-tree.svg" alt="A shy red panda peeking out from behind an old tree, its striped tail poking out on the other side." width="640" height="900">
+
+      <div class="pd-cover">
+        <p class="pd-brand"><img src="art/app-icon.webp" alt="" width="44" height="44">Panda Domi</p>
+        <h1>Share the moment, not&nbsp;your&nbsp;child.</h1>
+        <p class="pd-lede">A cosy red panda journal for your family’s first years. First steps, funny moments, the things they say: each one becomes a little panda card you can send to the family.</p>
+        <a class="pd-button" href="#story">Meet the pandas</a>
       </div>
     </header>
 
-    <main>
-      <section id="story" class="pd-story" aria-labelledby="story-title" tabindex="-1">
-        <h2 id="story-title">A big panda and a tiny cub</h2>
-        <ol class="pd-beats">
-          <li class="pd-beat">
-            <img src="art/den.svg" alt="Inside a warm tree-hollow den, a big red panda sits beside a tiny cub asleep on a bed of moss. A lantern glows, and a little shelf holds a frame with two tiny footprints." width="1000" height="760" loading="lazy">
-            <div>
-              <h3>Your panda gets a den</h3>
-              <p>When your baby arrives, your big red panda moves into a cosy den in a quiet valley. A tiny cub sleeps there too, curled up in the moss.</p>
-            </div>
-          </li>
-          <li class="pd-beat">
-            <img src="art/shelf.svg" alt="A wooden shelf full of keepsakes: framed footprints, a child's drawing of the sun, a flower in a pot, a star, a heart, a jar of bamboo leaves and a little wooden house." width="900" height="560" loading="lazy">
-            <div>
-              <h3>Every moment leaves a keepsake</h3>
-              <p>First steps, a funny face, a word nobody expected. You share it as a little panda card, and your panda adds a keepsake to the den. Over the months, the den fills up with your family's year.</p>
-            </div>
-          </li>
-          <li class="pd-beat">
-            <img src="art/visit.svg" alt="Two old trees in a green valley, each with a round doorway. The big panda waves from one; the grown-up cub waves back from its own den, with little paw prints along the path between them." width="1200" height="760" loading="lazy">
-            <div>
-              <h3>The cub grows up</h3>
-              <p>One day, when <em>you</em> decide your child is ready (not when a birthday says so), the cub becomes theirs to play. They count on the farm, read the little signs and hear the owl's bedtime story. Later the cub builds its own den nearby, and the two pandas visit each other.</p>
-            </div>
-          </li>
-        </ol>
+    <main id="story" tabindex="-1">
+      <section class="pd-plate-row" aria-labelledby="den-title">
+        <div class="pd-plate">
+          <img class="pd-scene" src="art/den-interior.webp" alt="" width="1200" height="900" loading="lazy">
+          <img class="pd-character" src="art/big-panda-with-cub.webp" alt="Inside a warm tree-hollow den, a big red panda holds a tiny sleeping cub in its paws." width="768" height="768" loading="lazy">
+        </div>
+        <div class="pd-words">
+          <h2 id="den-title">When your baby arrives, your panda gets a cub</h2>
+          <p>Your big red panda lives in a cosy den in a quiet valley. On the day your baby is born, a tiny cub arrives too, and sleeps curled up in the moss.</p>
+        </div>
       </section>
 
-      <section class="pd-cards" aria-labelledby="cards-title">
-        <h2 id="cards-title">Three moments, three cards</h2>
-        <p class="pd-intro">A card is panda art and a few warm words. That is all you send to the family chat. One tap to choose, one to fill in, one to share.</p>
-        <ul class="pd-card-list">
-          <li>
-            <article class="pd-card">
-              <img src="art/card-first-steps.svg" alt="A cub wobbling forward with its arms out, tiny footprints behind it." width="600" height="460" loading="lazy">
-              <div class="pd-card-body">
-                <p class="pd-kind">Milestone</p>
-                <h3>First steps!</h3>
-                <p>Three wobbly steps from the sofa to the cat. The cat was not impressed.</p>
-              </div>
-              <p class="pd-made"><img src="art/mark.svg" alt="" width="20" height="20">made with Panda Domi</p>
-            </article>
-          </li>
-          <li>
-            <article class="pd-card">
-              <img src="art/card-funny.svg" alt="A giggling cub wearing a bunch of bamboo leaves as a hat." width="600" height="460" loading="lazy">
-              <div class="pd-card-body">
-                <p class="pd-kind">Funny moment</p>
-                <h3>Wore the salad as a hat</h3>
-                <p>Very proud of it. Would not take it off for lunch.</p>
-              </div>
-              <p class="pd-made"><img src="art/mark.svg" alt="" width="20" height="20">made with Panda Domi</p>
-            </article>
-          </li>
-          <li>
-            <article class="pd-card pd-card-night">
-              <img src="art/card-said.svg" alt="A cub under a starry sky, waving up at a crescent moon, a lantern glowing nearby." width="600" height="460" loading="lazy">
-              <div class="pd-card-body">
-                <p class="pd-kind">What they said</p>
-                <h3>“Moon, come home with us!”</h3>
-                <p>On the walk back from Grandma's, half asleep.</p>
-              </div>
-              <p class="pd-made"><img src="art/mark.svg" alt="" width="20" height="20">made with Panda Domi</p>
-            </article>
-          </li>
+      <section class="pd-keepsakes" aria-labelledby="keepsakes-title">
+        <div class="pd-words">
+          <h2 id="keepsakes-title">Every moment you share leaves a keepsake</h2>
+          <p>Share a moment and your panda puts something on the shelf of the den. Over the months, the den fills up with your family’s year.</p>
+        </div>
+        <ul class="pd-shelf">
+          <li><img src="art/tiny-footprints.webp" alt="Tiny paw prints" width="256" height="256" loading="lazy"><span>First steps</span></li>
+          <li><img src="art/sun-drawing.webp" alt="A crayon drawing of the sun" width="256" height="256" loading="lazy"><span>A first smile</span></li>
+          <li><img src="art/wooden-blocks.webp" alt="Wooden toy blocks" width="256" height="256" loading="lazy"><span>A first word</span></li>
+          <li><img src="art/paper-crown.webp" alt="A paper crown" width="256" height="256" loading="lazy"><span>That made us laugh</span></li>
+          <li><img src="art/speech-bubble-note.webp" alt="A little speech bubble note" width="256" height="256" loading="lazy"><span>What they said</span></li>
+          <li><img src="art/berry-bowl.webp" alt="A bowl of red berries" width="256" height="256" loading="lazy"><span>Tried something new</span></li>
+          <li><img src="art/moon-lantern.webp" alt="A paper lantern with a moon on it" width="256" height="256" loading="lazy"><span>Slept through the night</span></li>
+          <li><img src="art/rhododendron-flower.webp" alt="A pink rhododendron flower" width="256" height="256" loading="lazy"><span>A sweet moment</span></li>
         </ul>
       </section>
 
+      <section class="pd-plate-row pd-flip" aria-labelledby="play-title">
+        <div class="pd-plate">
+          <img class="pd-scene" src="art/farm-scene.webp" alt="" width="1200" height="900" loading="lazy">
+          <img class="pd-character" src="art/cub-eating.webp" alt="On a sunny little farm among rhododendrons, the cub sits happily nibbling a berry." width="768" height="768" loading="lazy">
+        </div>
+        <div class="pd-words">
+          <h2 id="play-title">When you decide they’re ready, the cub is theirs</h2>
+          <p>Never because of a birthday: you choose the day. Your child plays the cub themselves, counting berries on the farm, reading little signs in the valley and hearing the owl’s bedtime story.</p>
+        </div>
+      </section>
+
+      <section class="pd-plate-row" aria-labelledby="grow-title">
+        <div class="pd-plate pd-plate-sky">
+          <img class="pd-scene" src="art/landing-valley.webp" alt="" width="1672" height="940" loading="lazy">
+          <img class="pd-character" src="art/cub-walking.webp" alt="The grown cub striding proudly across the green valley." width="768" height="768" loading="lazy">
+        </div>
+        <div class="pd-words">
+          <h2 id="grow-title">And one day, the cub builds its own den nearby</h2>
+          <p>Like a real red panda, the cub grows up and moves into a den of its own in the same valley. Your two pandas visit each other.</p>
+        </div>
+      </section>
+
+      <section class="pd-cards" aria-labelledby="cards-title">
+        <div class="pd-words">
+          <h2 id="cards-title">Moments, not photos</h2>
+          <p>Pick a card, add a few words, tap share. It’s with grandma before the moment is over, and there is nothing of your child in it but their words.</p>
+        </div>
+        <!-- On a phone the cards scroll sideways; the region is focusable so a keyboard can scroll it too. -->
+        <div class="pd-card-row" role="region" aria-label="Example cards" tabindex="0">
+          <figure class="pd-card">
+            <img class="pd-card-bg" src="art/card-bg-meadow.webp" alt="" width="540" height="960" loading="lazy">
+            <img class="pd-card-art" src="art/cub-walking.webp" alt="" width="768" height="768" loading="lazy">
+            <img class="pd-card-keepsake" src="art/tiny-footprints.webp" alt="" width="256" height="256" loading="lazy">
+            <figcaption>
+              <strong>First steps!</strong>
+              <span>Three wobbly steps from the sofa to the cat.</span>
+            </figcaption>
+            <span class="pd-made">made with Panda Domi</span>
+          </figure>
+          <figure class="pd-card">
+            <img class="pd-card-bg" src="art/card-bg-meadow.webp" alt="" width="540" height="960" loading="lazy">
+            <img class="pd-card-art" src="art/cub-tumble.webp" alt="" width="768" height="768" loading="lazy">
+            <img class="pd-card-keepsake" src="art/paper-crown.webp" alt="" width="256" height="256" loading="lazy">
+            <figcaption>
+              <strong>That made us laugh</strong>
+              <span>Tried to feed the cat a sock. The cat said no.</span>
+            </figcaption>
+            <span class="pd-made">made with Panda Domi</span>
+          </figure>
+          <figure class="pd-card">
+            <img class="pd-card-bg" src="art/card-bg-meadow.webp" alt="" width="540" height="960" loading="lazy">
+            <img class="pd-card-art" src="art/cub-speaking.webp" alt="" width="768" height="768" loading="lazy">
+            <img class="pd-card-keepsake" src="art/speech-bubble-note.webp" alt="" width="256" height="256" loading="lazy">
+            <figcaption>
+              <strong>What they said</strong>
+              <span>“The moon is following our car.”</span>
+            </figcaption>
+            <span class="pd-made">made with Panda Domi</span>
+          </figure>
+        </div>
+      </section>
+
       <section class="pd-promise" aria-labelledby="promise-title">
-        <img src="art/promise.svg" alt="The big red panda, eyes closed, holding the sleeping cub close." width="700" height="640" loading="lazy">
+        <img src="art/big-panda-sitting.webp" alt="The big red panda sitting calmly, paws in its lap." width="768" height="768" loading="lazy">
         <div>
-          <h2 id="promise-title">Share the moment, not your child.</h2>
+          <h2 id="promise-title">Our promise</h2>
           <ul class="pd-promises">
-            <li><strong>No photos of your child. Ever.</strong> No face, no voice, no camera button. Your real photos belong somewhere safer.</li>
-            <li><strong>It lives on your phone.</strong> It works offline, and your journal stays on your own family's devices. There is nowhere to upload to.</li>
-            <li><strong>No accounts, ads, cookies or tracking.</strong> This page too: it loads nothing from anyone else.</li>
-            <li><strong>Nothing is lost by being away.</strong> No streaks, nothing wilts, no guilt. After a week of no sleep, everything is still there.</li>
-            <li><strong>Children see only the valley.</strong> No shop, no links out, no messages from strangers. Grown-up things sit behind a parent lock.</li>
-            <li><strong>It never compares.</strong> No “by eighteen months your child should…”. Only gentle ideas for what might come next.</li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v11H4z M15 13a3 3 0 1 1-6 0a3 3 0 1 1 6 0 M3 3l18 18"/></svg>
+              <div><h3>No photo of your child. Ever.</h3><p>No faces, no voices, no uploads, no camera button. A card carries panda art and the words you choose.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2.5h5a2.5 2.5 0 0 1 2.5 2.5v14a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 7 19V5a2.5 2.5 0 0 1 2.5-2.5z M11 18.5h2"/></svg>
+              <div><h3>It lives on your phone</h3><p>It works offline and stays on your own devices. There is no account and no server holding your family’s moments.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z M9 12l2 2 4-4"/></svg>
+              <div><h3>No ads, no tracking, no cookies</h3><p>This page loads nothing from anyone else, and the journal never will.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 0 1 8.5 4a8 8 0 1 0 11.5 11.5z"/></svg>
+              <div><h3>No guilt</h3><p>No streaks, no timers, nothing wilts while you’re away. After a week of no sleep, everything is still there.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 21c0-6 3-11 14-16-1 9-5 14-11 14 M5 21l7-7"/></svg>
+              <div><h3>A safe place for small hands</h3><p>When your child plays, they never see a shop, a link out or a message from a stranger. It never compares them with anyone either.</p></div>
+            </li>
           </ul>
         </div>
       </section>
 
       <section class="pd-follow" aria-labelledby="follow-title">
-        <h2 id="follow-title">Follow along, no email needed</h2>
-        <p>Panda Domi is being made right now. The free journal comes first. Paid extras come later, and only grown-ups will ever see them.</p>
-        <p>To hear when there is news, add <a href="feed.xml">the news feed</a> to any feed reader. No sign-up, and we never learn who you are. Or simply come back some time: nothing is lost by being away.</p>
+        <h2 id="follow-title">Follow along</h2>
+        <p>The den is being built right now. There is nothing to sign up for and no email to give: add <a href="feed.xml">the news feed</a> to any feed reader, or simply come back. Nothing is lost by being away.</p>
       </section>
     </main>
 
     <footer class="pd-night">
-      <img src="art/night.svg" alt="Night in the valley: an owl in round spectacles sits on a branch under a glowing lantern, next to a cub curled up asleep. Stars and a crescent moon above." width="1600" height="700" loading="lazy">
+      <div class="pd-night-scene">
+        <img class="pd-night-lantern" src="art/moon-lantern.webp" alt="" width="256" height="256" loading="lazy">
+        <img class="pd-night-cub" src="art/cub-newborn-sleeping.webp" alt="The tiny cub curled up asleep under a glowing moon lantern." width="768" height="768" loading="lazy">
+      </div>
       <p class="pd-goodnight">Good night, little panda.</p>
-      <p class="pd-small">This page sets no cookies, counts no visitors and loads no fonts, scripts or pictures from anywhere else. It is hosted on GitHub Pages, and like any web host GitHub sees the requests that reach it. Every picture on it is drawn in code. The name Panda Domi is still provisional.</p>
+      <p class="pd-small">This page sets no cookies, counts no visitors and loads no fonts, scripts or pictures from anywhere else. It is hosted on GitHub Pages, and like any web host GitHub sees the requests that reach it. Panda Domi is a working name.</p>
     </footer>
 
   </div>

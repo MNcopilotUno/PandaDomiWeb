@@ -13,6 +13,8 @@ const types = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css; charset=utf-8',
   '.svg': 'image/svg+xml',
+  '.webp': 'image/webp',
+  '.woff2': 'font/woff2',
   '.xml': 'application/atom+xml; charset=utf-8',
   '.txt': 'text/plain; charset=utf-8',
 };

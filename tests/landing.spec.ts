@@ -21,7 +21,8 @@ test('loads nothing from any other origin', async ({ page, baseURL }) => {
   const foreign = requests.filter((u) => !u.startsWith(origin + '/') && !u.startsWith('data:'));
   expect(foreign, 'requests to other origins').toEqual([]);
   // The page must actually have loaded its own files, or the check above is empty.
-  expect(requests.filter((u) => u.endsWith('.svg')).length).toBeGreaterThanOrEqual(10);
+  expect(requests.filter((u) => u.endsWith('.webp')).length).toBeGreaterThanOrEqual(20);
+  expect(requests.filter((u) => u.endsWith('.woff2')).length).toBeGreaterThanOrEqual(2);
 });
 
 test('every file it asks for exists', async ({ page }) => {
@@ -58,14 +59,16 @@ test('no console errors or security policy violations', async ({ page }) => {
 
 test('tells the whole story', async ({ page }) => {
   await page.goto('./');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Panda Domi');
-  await expect(page.locator('.pd-tagline')).toHaveText('Share the moment, not your child.');
-  await expect(page.locator('.pd-beat')).toHaveCount(3);
+  await expect(page.locator('.pd-brand')).toHaveText('Panda Domi');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Share the moment, not\s+your\s+child\.$/);
+  await expect(page.locator('.pd-plate-row')).toHaveCount(3);
+  await expect(page.locator('.pd-shelf li')).toHaveCount(8);
   await expect(page.locator('.pd-card')).toHaveCount(3);
   for (const card of await page.locator('.pd-card').all()) {
     await expect(card.locator('.pd-made')).toHaveText('made with Panda Domi');
   }
-  await expect(page.getByRole('heading', { name: 'Share the moment, not your child.' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Our promise' })).toBeVisible();
+  await expect(page.locator('.pd-promises li')).toHaveCount(5);
   await expect(page.getByRole('link', { name: 'the news feed' })).toHaveAttribute('href', 'feed.xml');
 });
 
@@ -120,10 +123,12 @@ test('fits a small phone without sideways scrolling', async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
   // .pd-grove clips overflow, so also check nothing readable is cut off at the
-  // edges. The hero layers bleed past the screen on purpose, and the panda's
-  // head slides in from behind the trunk; the tree layer covers its box.
-  const cut = await page.$$eval('h1, h2, h3, p, li, a, img:not(.pd-layer):not(.pd-shy-head)', (els) =>
+  // edges.
+  const cut = await page.$$eval('h1, h2, h3, p, li, a, img, .pd-card-row', (els) =>
     els
+      // The painted stage is wider than a phone on purpose (it shows the middle of
+      // the painting), and the cards scroll sideways inside their own row.
+      .filter((e) => !e.closest('.pd-stage') && !e.closest('.pd-card'))
       .filter((e) => {
         const r = e.getBoundingClientRect();
         return r.width > 0 && (r.left < -1 || r.right > window.innerWidth + 1);
@@ -147,7 +152,7 @@ test('the news feed is well-formed Atom', async ({ page, request }) => {
       title: doc.querySelector('entry > title')?.textContent,
     };
   }, xml);
-  expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 1, title: 'The valley is open' });
+  expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 2, title: 'The valley is painted' });
 });
 
 test('the shy panda peeks once, and rests in place when motion is reduced', async ({ browser }) => {
@@ -155,9 +160,38 @@ test('the shy panda peeks once, and rests in place when motion is reduced', asyn
     const context = await browser.newContext({ reducedMotion });
     const page = await context.newPage();
     await page.goto('./');
-    const head = page.locator('.pd-shy-head');
-    await expect(head).toHaveCSS('animation-name', expected);
-    if (reducedMotion === 'reduce') await expect(head).toHaveCSS('opacity', '1');
+    const panda = page.locator('.pd-peek img');
+    await expect(panda).toHaveCSS('animation-name', expected);
+    if (reducedMotion === 'reduce') {
+      // Without the slide, the panda is already out from behind the trunk.
+      const shown = await panda.evaluate((img) => {
+        const window = img.parentElement!.getBoundingClientRect();
+        const r = img.getBoundingClientRect();
+        return (r.right - window.left) / window.width;
+      });
+      expect(shown).toBeGreaterThan(0.8);
+    }
     await context.close();
   }
+});
+
+test('the game\'s own fonts are the ones in use', async ({ page }) => {
+  await visitWholePage(page);
+  const loaded = await page.evaluate(async () => {
+    await document.fonts.ready;
+    return [...document.fonts].filter((f) => f.status === 'loaded').map((f) => `${f.family} ${f.weight}`);
+  });
+  expect(loaded).toEqual(expect.arrayContaining(['Baloo 2 800', 'Nunito 200 1000']));
+});
+
+test('the cards can be scrolled with a keyboard on a phone', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 740 });
+  await page.goto('./');
+  const row = page.getByRole('region', { name: 'Example cards' });
+  await expect(row).toHaveAttribute('tabindex', '0');
+  const scrollable = await row.evaluate((el) => el.scrollWidth > el.clientWidth);
+  expect(scrollable).toBe(true);
+  await row.focus();
+  await page.keyboard.press('ArrowRight');
+  await expect.poll(() => row.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
 });

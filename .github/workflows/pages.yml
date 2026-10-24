@@ -24,7 +24,7 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Art is rebuilt from code and committed
+      - name: Art and fonts match the game assets they were synced from
         run: pnpm art:check
       - name: No file over 5 MB
         run: pnpm check:size
