@@ -69,6 +69,12 @@ test('tells the whole story', async ({ page }) => {
   }
   await expect(page.getByRole('heading', { name: 'Our promise' })).toBeVisible();
   await expect(page.locator('.pd-promises li')).toHaveCount(5);
+  // The good night: the game's night valley, the owl telling the story, the cub asleep.
+  const night = page.locator('footer.pd-night');
+  await expect(night.locator('img[src="art/valley-night.webp"]')).toHaveCount(1);
+  await expect(night.locator('img[src="art/owl-storytelling.webp"]')).toHaveCount(1);
+  await expect(night.locator('img[src="art/cub-newborn-sleeping.webp"]')).toHaveCount(1);
+  await expect(night.locator('.pd-goodnight')).toHaveText('Good night, little panda.');
   await expect(page.getByRole('link', { name: 'the news feed' })).toHaveAttribute('href', 'feed.xml');
 });
 
@@ -152,7 +158,7 @@ test('the news feed is well-formed Atom', async ({ page, request }) => {
       title: doc.querySelector('entry > title')?.textContent,
     };
   }, xml);
-  expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 2, title: 'The valley is painted' });
+  expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 3, title: 'The owl tells a bedtime story' });
 });
 
 test('the shy panda peeks once, and rests in place when motion is reduced', async ({ browser }) => {

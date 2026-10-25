@@ -146,3 +146,31 @@ the measurement, and fanned cards are straightened, so their boxes match their t
 - Text inside the painted cards is measured with the cards straightened; their rotation by a few
   degrees does not change what is behind the words.
 - Windows high-contrast and forced-colors modes.
+
+---
+
+# Round 4: the painted night
+
+The game accepted `valley-night` and `owl-storytelling` (commit `3329689`); the daily check found
+them and moved them from `pending` into `images`.
+
+## Findings
+
+| # | Finding | Severity | Resolution |
+|:--|:--|:--|:--|
+| N1 | Syncing at the new commit also brought 12 already-used images the game had re-exported since `18614d5`. | low | Compared old and new side by side: the same paintings, re-encoded. Shipped as they are, so the page matches the game. |
+| N2 | The contrast test failed "Good night, little panda." at 2.36:1 on desktop: the painting's moonlit clouds cross the line. | medium (a11y) | A soft night-sky haze behind the words (the hero's cream haze, in the dark). Passes on desktop and phone. A `text-shadow` would not have counted: the test hides it and measures real pixels. |
+| N3 | A faint hairline between the dusk and the footer at the phone's 2.625 pixel ratio. | low (visible) | The footer overlaps the dusk by one pixel. |
+| N4 | The CSS stars and the standalone moon lantern were drawn because no night art existed. | — | Removed; the painting has its stars and moon, the owl its lantern. `moon-lantern` stays on the keepsake shelf. |
+| N5 | `pnpm art:status` exits 1 when `pending` is empty ("not all accepted" is vacuously odd). | low | Left as is: it only answers "is there art to bring in?", and the daily check is removed once nothing is pending. |
+
+## Test honesty
+
+| Check | Bug put back | Result |
+|:--|:--|:--|
+| every piece of text has enough contrast | the footer before the night haze | failed: 2.36:1 on the good-night line |
+| tells the whole story | (new assertions) the footer's valley-night, owl and cub images | checked present; `art:check` fails if either file is missing |
+
+## What I did NOT verify
+
+- The owl and cub positions at every width between 390 and 1440 px: checked at those two.

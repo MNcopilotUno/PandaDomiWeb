@@ -69,8 +69,7 @@ it or it doesn't load — nothing half-works.
 **Writes to `events`.** None. This repository has no app and no storage.
 
 **Art.** Only art with status `accepted` in the game can be synced (the script refuses
-placeholders). The game has no painted night scene yet (`valley-night` is a placeholder), so the
-footer is a CSS night sky with two accepted props. The art is pinned: when the game accepts new or
+placeholders). Assets the page waits for are listed under `pending` until the game accepts them. The art is pinned: when the game accepts new or
 changed art, nothing here moves until someone re-runs the sync and commits.
 
 **Performance.** About 2.4 MB of WebP in total, of which about 0.9 MB is the opening scene (sky,
@@ -79,12 +78,9 @@ a low-end phone or a slow connection.
 
 ## Gap analysis
 
-- No painted night in the game yet. `valley-night` (the valley asleep, seen from the den's
-  doorway) and `owl-storytelling` (the owl on a branch with its lantern) are `pending` in
-  `art/assets.json`. Once the game accepts them, the footer becomes: the night valley as a
-  full-bleed painting, the owl on its branch telling the story, the sleeping cub below it in the
-  calm lower centre the painting keeps free, and "Good night, little panda." The CSS stars and the
-  standalone moon lantern go (the owl brings its own lantern). `pnpm art:status` says when.
+- The painted night arrived (game commit `3329689`): the footer is now `valley-night` full-bleed,
+  fading in from the dusk and out into a night-meadow band, with `owl-storytelling` telling the
+  story and the sleeping cub in the meadow. Nothing is pending.
 - No Gitea mirror for this repository yet.
 - Only Chromium is tested. Safari and Firefox are unverified.
 - The family-understands-it half of the gate is a person, not a test.
