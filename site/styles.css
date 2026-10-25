@@ -61,7 +61,8 @@
   --pd-paper: #F7EEDC;
   --pd-dusk: #F3DAC0; /* light enough that rust links keep 4.7:1 on it */
   --pd-indigo: #3E4A78;
-  --pd-night: #232848;
+  --pd-night-sky: #364675; /* the top edge of valley-night */
+  --pd-night-meadow: #2E3024; /* below the painting's meadow */
   --pd-gold: #F2C66D;
   --pd-shadow: 0 22px 40px -22px rgb(74 42 31 / 0.55), 0 2px 6px -2px rgb(74 42 31 / 0.25);
   --pd-radius: 22px;
@@ -70,7 +71,7 @@
 }
 
 html {
-  background: var(--pd-night);
+  background: var(--pd-night-meadow);
   scroll-behavior: smooth;
 }
 
@@ -538,66 +539,69 @@ main > section {
   gap: 1rem;
 }
 
-/* ---------- Bedtime ---------- */
+/* ---------- Bedtime: the game's night valley, the owl and the sleeping cub ---------- */
 
+/* The painting fades in from the dusk above and out into the night meadow below,
+   through the colours of its own top and bottom edges, so there is no seam. */
 .pd-night {
   position: relative;
-  padding: 3rem 20px 3.5rem;
+  margin-top: -1px; /* overlap the dusk by a pixel: no hairline at fractional device pixel ratios */
+  padding-bottom: 3rem;
   color: var(--pd-cream);
   text-align: center;
-  background:
-    radial-gradient(1.5px 1.5px at 12% 18%, var(--pd-gold) 99%, transparent),
-    radial-gradient(1px 1px at 23% 42%, var(--pd-cream) 99%, transparent),
-    radial-gradient(1.5px 1.5px at 34% 12%, var(--pd-cream) 99%, transparent),
-    radial-gradient(1px 1px at 46% 30%, var(--pd-gold) 99%, transparent),
-    radial-gradient(1.5px 1.5px at 61% 16%, var(--pd-gold) 99%, transparent),
-    radial-gradient(1px 1px at 72% 38%, var(--pd-cream) 99%, transparent),
-    radial-gradient(1.5px 1.5px at 84% 10%, var(--pd-cream) 99%, transparent),
-    radial-gradient(1px 1px at 92% 28%, var(--pd-gold) 99%, transparent),
-    radial-gradient(1px 1px at 6% 36%, var(--pd-cream) 99%, transparent),
-    linear-gradient(to bottom, var(--pd-dusk) 0, var(--pd-indigo) 22%, var(--pd-night) 70%);
+  background: var(--pd-night-meadow);
 }
 
 .pd-night-scene {
   position: relative;
-  width: min(100%, 420px);
-  margin: 0 auto;
-  padding-top: 70px;
+  height: clamp(560px, 62vw, 900px);
+  overflow: hidden;
+  background: linear-gradient(to bottom, var(--pd-dusk) 0, var(--pd-night-sky) 14%, var(--pd-night-sky) 50%, #635E3F 86%, var(--pd-night-meadow) 100%);
 }
 
-/* A warm glow from the lantern falls on the sleeping cub. */
-.pd-night-scene::before {
-  content: '';
+.pd-grove .pd-night-valley {
   position: absolute;
-  left: 50%;
-  top: 20%;
-  width: 120%;
-  aspect-ratio: 1;
-  transform: translateX(-50%);
-  background: radial-gradient(circle, rgb(242 198 109 / 0.42) 0%, rgb(242 198 109 / 0.12) 38%, rgb(242 198 109 / 0) 64%);
-  pointer-events: none;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 70%;
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
+  mask-image: linear-gradient(to bottom, transparent 0, #000 14%, #000 86%, transparent 100%);
 }
-
-.pd-grove .pd-night-lantern {
-  position: absolute;
-  top: 0;
-  right: 8%;
-  width: 26%;
-  z-index: 1;
-}
-
-.pd-grove .pd-night-cub { position: relative; width: 100%; }
 
 .pd-goodnight {
-  margin-top: 0.5rem !important;
+  position: relative;
+  z-index: 1;
+  margin: 0 !important;
+  padding: clamp(4.5rem, 9vw, 7.5rem) 20px 1.25rem;
+  /* A soft patch of night sky behind the words, the dark twin of the hero's cream
+     haze: the painting's moonlit clouds are too light for gold text on their own. */
+  background: radial-gradient(closest-side, rgb(54 70 117 / 0.88) 0%, rgb(54 70 117 / 0.62) 58%, rgb(54 70 117 / 0) 100%) 50% 100% / min(860px, 125%) clamp(7rem, 11vw, 10rem) no-repeat;
   font-family: var(--pd-display);
-  font-size: clamp(1.7rem, 1.3rem + 1.6vw, 2.4rem);
+  font-size: clamp(1.9rem, 1.3rem + 2.4vw, 3rem);
   color: var(--pd-gold);
+}
+
+/* The owl tells the story from its branch; the cub listens in the calm meadow. */
+.pd-grove .pd-night-owl,
+.pd-grove .pd-night-cub {
+  position: absolute;
+  transform: translateX(-50%);
+}
+
+.pd-grove .pd-night-owl { left: 36%; bottom: 20%; width: clamp(132px, 20vw, 280px); }
+.pd-grove .pd-night-cub { left: 62%; bottom: 7%; width: clamp(150px, 22vw, 310px); }
+
+@media (max-width: 700px) {
+  .pd-grove .pd-night-owl { left: 28%; }
+  .pd-grove .pd-night-cub { left: 68%; }
 }
 
 .pd-small {
   max-width: 38rem;
-  margin: 1rem auto 0 !important;
+  margin: 0 auto !important;
+  padding: 1.5rem 20px 0;
   font-size: 0.9rem;
   color: rgb(251 243 228 / 0.85);
 }
