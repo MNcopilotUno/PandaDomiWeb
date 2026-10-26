@@ -174,3 +174,50 @@ them and moved them from `pending` into `images`.
 ## What I did NOT verify
 
 - The owl and cub positions at every width between 390 and 1440 px: checked at those two.
+
+---
+
+# Round 5: the roadmap, and a page you can play with
+
+The developer asked for the landing page to reflect PandaDomi's roadmap (now phases 0–6 and a full
+feature inventory) and to be animated and interactive. The page gains `valley.js`; its reading
+never depends on it.
+
+## Findings
+
+| # | Finding | Severity | Resolution |
+|:--|:--|:--|:--|
+| P1 | The hero's cream haze (a pseudo-element reaching past the words) swallowed taps on the shy panda. A real visitor could not say hello. | high (broken control) | `pointer-events: none` on both hazes. The tap test fails with it removed. |
+| P2 | "Start again" pressed while a share was in flight: the pending share landed after the reset, putting a keepsake back and growing the cub. | medium (wrong state) | The share in flight is called back. New test; fails without the fix. |
+| P3 | The contrast test failed "Share" at 4.27:1: the button font reset (`font: inherit`) dropped its weight, so it measured as normal text. | low | The reset moved under `:where()`, buttons set weight 800 explicitly; at 19 px bold it is large text. |
+| P4 | "Tap the owl for a bedtime story" sat on moonlit clouds at 3.29:1. | medium (a11y) | A night-sky pill behind it. |
+| P5 | The "now" roadmap stone, cream on rust at 18 px on a phone, was 4.27:1. | medium (a11y) | `--pd-rust-text` (5.75:1). |
+| P6 | Inline `style` attributes for the berries' positions would be refused by the CSP. | — | Caught before running: positions moved to the stylesheet (`:nth-child`). JS sets transforms through the CSSOM, which the CSP allows. |
+| P7 | The roadmap is the family's private plan in parts (the due date, "you and your wife" gates). | privacy | Only phases, themes and status are shown, with season-level dates. No family detail on the page. |
+| P8 | One link now leaves the site: the early journal build at `/PandaDomi/app/` (same owner, same host). | low | Deliberate, from the roadmap's Phase 1; the link test allows exactly that URL. `referrer: no-referrer` still applies. |
+| P9 | Page weight grows: 49 files, 5.2 MB of WebP in total. First view is unchanged (~0.9 MB); everything else is lazy, and the three night layers (~0.75 MB) load only when someone asks for the night. | medium | Accepted; not measured on a slow phone. |
+| P10 | Sharing is pretend. A visitor could think a card went somewhere. | — | Labelled "Pretend sharing: nothing leaves this page" next to the button. |
+
+## Test honesty (round 5)
+
+| Test | Bug put back | Result |
+|:--|:--|:--|
+| without script … no control is dead | the Bedtime button not `hidden` | failed |
+| loads nothing from any other origin, even while playing | `fetch('ping')` on Bedtime | **passed** at first: the CSP blocks the fetch before it is a request. The test now also fails on any CSP-blocked attempt → failed |
+| leaves nothing behind | `localStorage.setItem` on share | failed |
+| starting again while a share is in flight | the call-back removed | failed |
+| roadmap tabs a keyboard can walk | arrow keys ignored | failed |
+| far layers do not drift with reduced motion | parallax ignoring the setting | failed |
+| the shy panda … ducks when tapped | the haze's `pointer-events: none` removed | failed |
+| feeding the cub … | focus not moved after a pick | failed |
+
+A first full run also had a failure that passed alone four times. Not called a flake: the owl swaps
+the cub's picture back 2.2 s after a tap, and a `decode()` running across that swap rejects. The
+helper now waits for the cub to settle. The page was right; the test stopped too early.
+
+## What I did NOT verify
+
+- Safari and Firefox, still (the play uses `aspect-ratio`, `svh`, container units, `mask-image`).
+- How the play feels on a real phone with a thumb: target sizes are ≥ 44 px, measured only.
+- Screen-reader announcements beyond their text: the live regions exist and are tested for content,
+  not listened to.

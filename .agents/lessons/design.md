@@ -21,3 +21,9 @@ background, and a gradient background is only as good as its darkest point under
 **How to apply.** Give text its own tokens (`--pd-rust-text`, `--pd-wood-text`) with the ratio in
 a comment, and keep the pixel-sampling contrast test green: it measures what is really behind
 each word, paintings and gradients included.
+
+## A decorative layer that reaches past its box can eat taps
+**What happened.** The hero's haze, a pseudo-element extending beyond the words, sat over the shy
+panda's button, so tapping the panda did nothing.
+**How to apply.** Give every decorative overlay `pointer-events: none`, and test controls by
+clicking them like a person would (Playwright refuses a click another element intercepts).

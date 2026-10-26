@@ -15,9 +15,11 @@ someone in the family understands the idea from it without explanation.
 
 | Decision | Why |
 |:--|:--|
-| Plain static HTML + CSS, **no JavaScript** | Nothing to phone home, nothing to keep state, nothing to break offline. The scroll runs from a morning valley to a night footer with section backgrounds. |
+| Static HTML + CSS, plus **one self-hosted script for play** (`valley.js`, round 5) | The page must be animated and interactive (the developer's ask), but the reading must never depend on it: every control is a `hidden` button the script reveals, so without it there is no dead control (the roadmap's own gate wording). No network, no storage, all state in the page; CSP `script-src 'self'`. |
 | Art is the **game's accepted art**, synced, not drawn here | Round 2 replaced the code-drawn SVGs with the painted assets accepted in PandaDomi (`art/assets/*.webp`, status `accepted` in its `assets.json`). `art/assets.json` here lists the 23 the landing uses and the width each is shown at; `scripts/sync-art.py` reads them with `git show` at a pinned PandaDomi commit (never uncommitted work), resizes them for the web (never enlarges) and records a sha256 per file. `pnpm art:check` fails CI if a file drifted, is missing, is not from the game, is referenced but not shipped, or is shipped but unused. |
 | Cards and keepsakes follow the game's real templates | Each example card uses its template's art and den decoration (`first-steps` → `cub-walking` + `tiny-footprints`, `funny-moment` → `cub-tumble` + `paper-crown`, `child-said` → `cub-speaking` + `speech-bubble-note`) on `card-bg-meadow` at 9:16, laid out like the game's `MomentCard`. The shelf shows eight decorations captioned with the template titles they come from. |
+| Play follows the roadmap | Each interaction is a real feature in miniature: day and night (the game's night layers), tap the shy panda (first session: "tap to wave"), share a moment → keepsake on the shelf → the cub grows (journal, Phases 1–2), feed the cub berries, three and still hungry (child mode, Phase 3), the roadmap as stepping-stone tabs (Phases 0–6), the owl's bedtime line (Phase 2/3). Sharing is labelled pretend: nothing leaves the page. |
+| The roadmap on a public page | Phases, themes and status only. The family's dates and gates stay in the private plan's wording, never here. The early journal build (`/PandaDomi/app/`) is the one link off this site. |
 | Hero: the game's 16:9 stage of three layers, the shy panda peeks from a clipped window | Sky, valley and grove cover the hero without being squashed: a phone shows the middle of the painting, a wide screen all of it. The panda slides out of a window that starts at the trunk's right edge (the game's own coordinates). CSS only; `prefers-reduced-motion` shows it resting in place. |
 | The game's own fonts, self-hosted | Baloo 2 800 for headings, Nunito for text, copied with their OFL licences, so the landing and the app read as one product. `font-src 'self'` in the CSP. |
 | Follow along = an **Atom feed** (`feed.xml`) | Answers the roadmap's open question with the only option that needs no email, no account and no server: the reader's feed app polls a static file. |
@@ -94,9 +96,9 @@ a low-end phone or a slow connection.
 | Every picture decodes (none broken) | e2e | `every picture draws` |
 | No console error/warning, no CSP violation | e2e | `no console errors or security policy violations` |
 | Name, headline, three story plates, eight keepsakes, three cards each with the "made with" mark, five promises, feed link | e2e | `tells the whole story` |
-| No `<script>`, no form/input/video/iframe/embed | e2e | `runs no script and offers no way to send anything` |
+| Only `valley.js`, no inline script; no form/input/select/video/iframe/embed | e2e | `runs only its own script and offers no way to send anything` |
 | No cookies, localStorage, sessionStorage, IndexedDB | e2e | `leaves nothing behind in the browser` |
-| No link leaves the site | e2e | `every link stays on this site` |
+| No link leaves the site but the early build | e2e | `every link stays on this site, but for the early build` |
 | Every `<img>` has alt; ≥9 real descriptions | e2e | `every picture is described or marked decorative` |
 | Skip link first on Tab, moves focus to the story | e2e (desktop) | `the skip link is the first stop for the keyboard` |
 | 360 px phone: no sideways scroll and nothing cut off at the edges | e2e | `fits a small phone without sideways scrolling` |
@@ -105,6 +107,18 @@ a low-end phone or a slow connection.
 | No file over 5 MB | CI + hook | `pnpm check:size` |
 | Peek runs normally; with reduced motion the panda is already out from behind the trunk | e2e | `the shy panda peeks once, and rests in place when motion is reduced` |
 | Baloo 2 and Nunito actually load (a wrong path would fall back silently) | e2e | `the game's own fonts are the ones in use` |
+| Without script: every phase listed, the finished state shown, not one visible button | e2e | `without script the whole page still reads, and no control is dead` |
+| Bedtime: night layers load only on request, cross-fade in, and back | e2e | `bedtime turns the opening scene to night and back` |
+| Tap the shy panda: ducks, then peeks again | e2e | `the shy panda peeks once, rests with reduced motion, and ducks when tapped` |
+| Share: card swaps, keepsake placed once, cub grows to its own den, Start again resets and refocuses | e2e | `sharing a moment puts its keepsake on the shelf and grows the cub` |
+| Start again during a share in flight calls it back | e2e | `starting again while a share is in flight calls the share back` |
+| Feed: counts, "still hungry" at three, focus stays on the bush, Pick again | e2e | `feeding the cub counts the berries: three, and still hungry` |
+| Roadmap tabs: opens on "now", arrows, Home/End, wrap, one panel | e2e | `the roadmap stones are tabs a keyboard can walk` |
+| Roadmap content: names, statuses, the 20% pledge, the early-build link | e2e | `the roadmap names every phase, with an honest status` |
+| Owl line and the cub's yawn | e2e | `the owl tells a bedtime line and the cub yawns` |
+| Reduced motion: no drift | e2e | `with reduced motion the far layers do not drift` |
+| Contrast at night, and with the owl's bubble and the berry count showing | e2e | `the opening scene keeps its contrast at night`, `every piece of text has enough contrast…` |
+| Privacy while playing: no other origin, no fetch/XHR/beacon, no CSP-blocked attempt, no storage, no cache | e2e | `loads nothing from any other origin, even while playing`, `leaves nothing behind in the browser` |
 | On a phone the card row scrolls, and a keyboard can scroll it | e2e | `the cards can be scrolled with a keyboard on a phone` |
 | Every piece of text clears WCAG AA against the pixels actually rendered behind it (paintings, haze, gradients included) | e2e | `every piece of text has enough contrast with what is behind it` |
 | Someone in the family understands it unaided | manual | the Phase 0 gate |
