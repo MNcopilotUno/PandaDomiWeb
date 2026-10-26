@@ -28,3 +28,16 @@ rule; a full-page capture re-lays out `svh` heights; the phone context's device 
 the screenshot 2.625× larger than the CSS boxes; and overflowed cards are never painted.
 **How to apply.** Raise the hiding rule's specificity, freeze viewport-dependent heights before
 measuring, screenshot with `scale: 'css'`, and make clipped content visible for the measurement.
+
+## A CSP can make a privacy test pass for the wrong reason
+**What happened.** A `fetch()` added on purpose did not fail "loads nothing from any other
+origin": the CSP refused it before it ever became a request, so the request listener saw nothing.
+**Why it bit.** The visitor was safe, but the test was green because of a second defence, not
+because it checked anything. Remove the CSP and the test would have stayed green.
+**How to apply.** Also fail on blocked attempts (console "Refused to…", CSP violations): the page
+must not even try.
+
+## A picture swapped during `decode()` rejects
+**What happened.** "Every picture draws" failed once under load: the owl's tap swaps the cub to a
+yawn and back after 2.2 s, and the check's `decode()` ran across the swap.
+**How to apply.** End an interaction helper only when every timed swap has settled.

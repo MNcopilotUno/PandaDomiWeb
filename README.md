@@ -1,8 +1,10 @@
 # PandaDomiWeb
 
 The public landing page for **Panda Domi**: one standalone scene that scrolls from a morning
-valley to bedtime. A shy red panda peeks out from behind an old tree, the big panda and cub story
-in three painted plates and a shelf of keepsakes, three real example cards, the promise
+valley to bedtime, and that you can play with. A shy red panda peeks out from behind an old tree
+(tap it), the valley turns to night, you share a pretend moment and watch the cub grow while its
+keepsake lands on the den shelf, you feed the cub berries, walk the roadmap as stepping stones
+through the valley, and ask the owl for a bedtime story. Plus the promise
 (*share the moment, not your child*) and a no-email way to follow along.
 
 Live at <https://mncopilotuno.github.io/PandaDomiWeb/>.
@@ -15,8 +17,9 @@ follows them.
 
 ```
 site/              the deployed files, exactly as served
-  index.html       the page (no JavaScript)
+  index.html       the page; complete and readable without JavaScript
   styles.css
+  valley.js        the play: day/night, the panda, sharing, feeding, the roadmap tabs, the owl
   feed.xml         the news feed
   art/*.webp       accepted art from the game, resized for the web
   fonts/           Baloo 2 and Nunito from the game, with their OFL licences
@@ -30,7 +33,14 @@ tests/             Playwright, against site/ as deployed
 .agents/           feature doc, self-review, lessons
 ```
 
-The page loads nothing from any other origin, sets no cookies and stores nothing.
+The page loads nothing from any other origin, sets no cookies and stores nothing. `valley.js` is
+self-hosted, makes no network request (the CSP would refuse one, and the tests fail on the
+attempt), keeps all state in the page, and only reveals the controls it can run: without it every
+section still reads and no dead button appears. Motion follows the reduced-motion setting.
+
+The roadmap section mirrors PandaDomi's `docs/ROADMAP.md` (phases 0–6 and their status). Keep it
+in step when the roadmap moves; personal details in the roadmap (dates tied to the family, the
+family's own gates) stay off this public page.
 
 ## Art comes from the game
 

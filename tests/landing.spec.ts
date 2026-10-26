@@ -1,6 +1,10 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Browser, type Page } from '@playwright/test';
 
-// Scroll to the bottom in steps so every lazy picture is requested.
+// The early journal build, linked from the roadmap's Phase 1. The only link that leaves this site.
+const EARLY_BUILD = 'https://mncopilotuno.github.io/PandaDomi/app/';
+
+// Scroll to the bottom in steps so every lazy picture is requested, and pause there
+// so the last ones are seen before anything scrolls back.
 async function visitWholePage(page: Page) {
   await page.goto('./');
   await page.evaluate(async () => {
@@ -8,21 +12,57 @@ async function visitWholePage(page: Page) {
       window.scrollTo(0, y);
       await new Promise((r) => setTimeout(r, 30));
     }
+    await new Promise((r) => setTimeout(r, 500));
   });
   await page.waitForLoadState('networkidle');
 }
 
-test('loads nothing from any other origin', async ({ page, baseURL }) => {
+// Every interaction on the page, once: night, the shy panda, sharing, feeding, every
+// roadmap stone, the owl. Privacy checks run after this, so play cannot hide a request.
+async function playEverything(page: Page) {
+  await page.getByRole('button', { name: 'Bedtime' }).click();
+  await expect(page.locator('.pd-hero')).toHaveAttribute('data-time', 'night');
+  await page.getByRole('button', { name: 'Say hello to the shy panda' }).click();
+  for (const chip of await page.locator('.pd-chip').all()) {
+    await chip.click();
+    await page.getByRole('button', { name: 'Share', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Share', exact: true })).toBeEnabled();
+  }
+  for (let i = 1; i <= 5; i++) await page.getByRole('button', { name: `Pick berry ${i}` }).click();
+  for (const tab of await page.getByRole('tab').all()) await tab.click();
+  await page.getByRole('button', { name: 'Ask the owl for a story' }).click();
+  // Let the cub settle back to sleep: a picture swapped mid-check would fail decode() for no fault of the page.
+  await expect(page.locator('.pd-night-cub')).toHaveAttribute('src', 'art/cub-newborn-sleeping.webp', { timeout: 5000 });
+  await page.waitForLoadState('networkidle');
+}
+
+test('loads nothing from any other origin, even while playing', async ({ page, baseURL }) => {
   const origin = new URL(baseURL!).origin;
   const requests: string[] = [];
-  page.on('request', (r) => requests.push(r.url()));
+  const kinds = new Set<string>();
+  page.on('request', (r) => {
+    requests.push(r.url());
+    kinds.add(r.resourceType());
+  });
+  // The CSP blocks a fetch before it becomes a request, so watch for blocked attempts too:
+  // the page must not even try.
+  const blocked: string[] = [];
+  page.on('console', (m) => {
+    if (/Content Security Policy|Refused to/i.test(m.text())) blocked.push(m.text());
+  });
+  page.on('pageerror', (e) => blocked.push(e.message));
   await visitWholePage(page);
+  await playEverything(page);
+  expect(blocked, 'attempts the CSP blocked').toEqual([]);
 
   const foreign = requests.filter((u) => !u.startsWith(origin + '/') && !u.startsWith('data:'));
   expect(foreign, 'requests to other origins').toEqual([]);
   // The page must actually have loaded its own files, or the check above is empty.
-  expect(requests.filter((u) => u.endsWith('.webp')).length).toBeGreaterThanOrEqual(20);
+  expect(requests.filter((u) => u.endsWith('.webp')).length).toBeGreaterThanOrEqual(30);
   expect(requests.filter((u) => u.endsWith('.woff2')).length).toBeGreaterThanOrEqual(2);
+  expect(requests.filter((u) => u.endsWith('/valley.js'))).toHaveLength(1);
+  // Loading and play ask for files only: no fetch, no XHR, no beacon.
+  for (const kind of kinds) expect(['image', 'font', 'stylesheet', 'script', 'document']).toContain(kind);
 });
 
 test('every file it asks for exists', async ({ page }) => {
@@ -32,15 +72,20 @@ test('every file it asks for exists', async ({ page }) => {
   });
   page.on('requestfailed', (r) => failed.push(`failed ${r.url()}`));
   await visitWholePage(page);
+  await playEverything(page);
   expect(failed).toEqual([]);
 });
 
-test('every picture draws', async ({ page }) => {
+test('every picture draws, in every state the play can reach', async ({ page }) => {
   await visitWholePage(page);
+  await playEverything(page);
   // decode() waits for a picture still being drawn and rejects for a broken one.
-  const broken = await page.$$eval('img', async (imgs) => {
-    const results = await Promise.allSettled(imgs.map((i) => i.decode()));
-    return imgs
+  // A lazy picture inside a hidden roadmap phase is never requested; those are
+  // checked by opening each phase above, so skip what is hidden now.
+  const broken = await page.$$eval('img[src]', async (imgs) => {
+    const shown = imgs.filter((i) => !i.closest('[hidden]'));
+    const results = await Promise.allSettled(shown.map((i) => i.decode()));
+    return shown
       .filter((img, k) => results[k]!.status === 'rejected' || img.naturalWidth === 0)
       .map((img) => img.getAttribute('src'));
   });
@@ -54,6 +99,7 @@ test('no console errors or security policy violations', async ({ page }) => {
   });
   page.on('pageerror', (e) => errors.push(e.message));
   await visitWholePage(page);
+  await playEverything(page);
   expect(errors).toEqual([]);
 });
 
@@ -61,47 +107,73 @@ test('tells the whole story', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('.pd-brand')).toHaveText('Panda Domi');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Share the moment, not\s+your\s+child\.$/);
-  await expect(page.locator('.pd-plate-row')).toHaveCount(3);
+  await expect(page.getByRole('heading', { name: 'Every moment you share leaves a keepsake' })).toBeVisible();
+  await expect(page.locator('.pd-card .pd-made')).toHaveText('made with Panda Domi');
   await expect(page.locator('.pd-shelf li')).toHaveCount(8);
-  await expect(page.locator('.pd-card')).toHaveCount(3);
-  for (const card of await page.locator('.pd-card').all()) {
-    await expect(card.locator('.pd-made')).toHaveText('made with Panda Domi');
-  }
+  await expect(page.getByRole('heading', { name: 'When you decide they’re ready, the cub is theirs' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'The path through the valley' })).toBeVisible();
+  await expect(page.locator('.pd-phase')).toHaveCount(7);
   await expect(page.getByRole('heading', { name: 'Our promise' })).toBeVisible();
-  await expect(page.locator('.pd-promises li')).toHaveCount(5);
-  // The good night: the game's night valley, the owl telling the story, the cub asleep.
+  await expect(page.locator('.pd-promises li')).toHaveCount(6);
+  await expect(page.getByRole('link', { name: 'the news feed' })).toHaveAttribute('href', 'feed.xml');
   const night = page.locator('footer.pd-night');
   await expect(night.locator('img[src="art/valley-night.webp"]')).toHaveCount(1);
   await expect(night.locator('img[src="art/owl-storytelling.webp"]')).toHaveCount(1);
-  await expect(night.locator('img[src="art/cub-newborn-sleeping.webp"]')).toHaveCount(1);
   await expect(night.locator('.pd-goodnight')).toHaveText('Good night, little panda.');
-  await expect(page.getByRole('link', { name: 'the news feed' })).toHaveAttribute('href', 'feed.xml');
 });
 
-test('runs no script and offers no way to send anything', async ({ page }) => {
+test('the roadmap names every phase, with an honest status', async ({ page }) => {
   await page.goto('./');
-  // No script means nothing on the page can phone home or keep state.
-  await expect(page.locator('script')).toHaveCount(0);
-  // No photo, camera or form: there is nothing to upload and nowhere to send it.
-  await expect(page.locator('form, input, textarea, video, audio, iframe, object, embed')).toHaveCount(0);
+  const names = await page.locator('.pd-stone-name').allTextContents();
+  expect(names).toEqual(['This page', 'The journal', 'The farm', 'Child play', 'Extras', 'Visits', 'Further']);
+  const statuses = await page.locator('.pd-stone').evaluateAll((els) => els.map((e) => e.getAttribute('data-status')));
+  expect(statuses).toEqual(['done', 'now', 'started', 'groundwork', 'later', 'later', 'later']);
+  await expect(page.locator('#phase-4')).toContainText('20% going to red panda conservation');
+  await expect(page.locator('#phase-1 a')).toHaveAttribute('href', EARLY_BUILD);
+});
+
+test('without script the whole page still reads, and no control is dead', async ({ browser }) => {
+  const context = await browser.newContext({ javaScriptEnabled: false });
+  const page = await context.newPage();
+  await page.goto('./');
+  // Every roadmap phase is listed, and the stones are plain links to them.
+  for (let i = 0; i <= 6; i++) await expect(page.locator(`#phase-${i}`)).toBeVisible();
+  await expect(page.locator('.pd-stone').first()).toHaveAttribute('href', '#phase-0');
+  // The finished state is shown: a card, a full shelf, the sleeping cub.
+  await expect(page.locator('.pd-card-title')).toHaveText('First steps!');
+  for (const img of await page.locator('.pd-shelf img').all()) await expect(img).toBeVisible();
+  // Not one button on screen: they only appear when the script can run them.
+  await expect(page.locator('button:visible')).toHaveCount(0);
+  await context.close();
+});
+
+test('runs only its own script and offers no way to send anything', async ({ page }) => {
+  await page.goto('./');
+  const scripts = await page.$$eval('script', (ss) => ss.map((s) => ({ src: s.getAttribute('src'), inline: s.textContent!.trim().length })));
+  expect(scripts).toEqual([{ src: 'valley.js', inline: 0 }]);
+  // No photo, camera, text field or form: there is nothing to upload and nowhere to send it.
+  await expect(page.locator('form, input, textarea, select, video, audio, iframe, object, embed')).toHaveCount(0);
 });
 
 test('leaves nothing behind in the browser', async ({ page, context }) => {
   await visitWholePage(page);
+  await playEverything(page);
   expect(await context.cookies()).toEqual([]);
   const stored = await page.evaluate(async () => ({
     local: localStorage.length,
     session: sessionStorage.length,
     databases: (await indexedDB.databases()).length,
+    caches: 'caches' in window ? (await caches.keys()).length : 0,
   }));
-  expect(stored).toEqual({ local: 0, session: 0, databases: 0 });
+  expect(stored).toEqual({ local: 0, session: 0, databases: 0, caches: 0 });
 });
 
-test('every link stays on this site', async ({ page, baseURL }) => {
+test('every link stays on this site, but for the early build', async ({ page, baseURL }) => {
   await page.goto('./');
   const hrefs = await page.$$eval('a[href]', (as) => as.map((a) => (a as HTMLAnchorElement).href));
   expect(hrefs.length).toBeGreaterThan(0);
-  for (const href of hrefs) expect(href.startsWith(baseURL!), href).toBe(true);
+  const away = hrefs.filter((href) => !href.startsWith(baseURL!));
+  expect(away).toEqual([EARLY_BUILD]);
 });
 
 test('every picture is described or marked decorative', async ({ page }) => {
@@ -109,7 +181,7 @@ test('every picture is described or marked decorative', async ({ page }) => {
   const missing = await page.$$eval('img', (imgs) => imgs.filter((i) => !i.hasAttribute('alt')).map((i) => i.src));
   expect(missing).toEqual([]);
   const described = await page.$$eval('img', (imgs) => imgs.filter((i) => (i.getAttribute('alt') ?? '').length > 20).length);
-  expect(described).toBeGreaterThanOrEqual(9);
+  expect(described).toBeGreaterThanOrEqual(20);
 });
 
 test('the skip link is the first stop for the keyboard', async ({ page, isMobile }) => {
@@ -129,12 +201,11 @@ test('fits a small phone without sideways scrolling', async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
   expect(overflow).toBeLessThanOrEqual(0);
   // .pd-grove clips overflow, so also check nothing readable is cut off at the
-  // edges.
-  const cut = await page.$$eval('h1, h2, h3, p, li, a, img, .pd-card-row', (els) =>
+  // edges. The painted stage is wider than a phone on purpose (it shows the middle
+  // of the painting), and the card it plays with slides away when shared.
+  const cut = await page.$$eval('h1, h2, h3, p, li, a, button, img', (els) =>
     els
-      // The painted stage is wider than a phone on purpose (it shows the middle of
-      // the painting), and the cards scroll sideways inside their own row.
-      .filter((e) => !e.closest('.pd-stage') && !e.closest('.pd-card'))
+      .filter((e) => !e.closest('.pd-stage') && !e.closest('[hidden]'))
       .filter((e) => {
         const r = e.getBoundingClientRect();
         return r.width > 0 && (r.left < -1 || r.right > window.innerWidth + 1);
@@ -158,30 +229,10 @@ test('the news feed is well-formed Atom', async ({ page, request }) => {
       title: doc.querySelector('entry > title')?.textContent,
     };
   }, xml);
-  expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 3, title: 'The owl tells a bedtime story' });
+  expect(parsed).toEqual({ error: 0, root: 'http://www.w3.org/2005/Atom', entries: 4, title: 'The path through the valley' });
 });
 
-test('the shy panda peeks once, and rests in place when motion is reduced', async ({ browser }) => {
-  for (const [reducedMotion, expected] of [['no-preference', 'pd-peek'], ['reduce', 'none']] as const) {
-    const context = await browser.newContext({ reducedMotion });
-    const page = await context.newPage();
-    await page.goto('./');
-    const panda = page.locator('.pd-peek img');
-    await expect(panda).toHaveCSS('animation-name', expected);
-    if (reducedMotion === 'reduce') {
-      // Without the slide, the panda is already out from behind the trunk.
-      const shown = await panda.evaluate((img) => {
-        const window = img.parentElement!.getBoundingClientRect();
-        const r = img.getBoundingClientRect();
-        return (r.right - window.left) / window.width;
-      });
-      expect(shown).toBeGreaterThan(0.8);
-    }
-    await context.close();
-  }
-});
-
-test('the game\'s own fonts are the ones in use', async ({ page }) => {
+test('the game’s own fonts are the ones in use', async ({ page }) => {
   await visitWholePage(page);
   const loaded = await page.evaluate(async () => {
     await document.fonts.ready;
@@ -190,39 +241,176 @@ test('the game\'s own fonts are the ones in use', async ({ page }) => {
   expect(loaded).toEqual(expect.arrayContaining(['Baloo 2 800', 'Nunito 200 1000']));
 });
 
-test('the cards can be scrolled with a keyboard on a phone', async ({ page }) => {
-  await page.setViewportSize({ width: 360, height: 740 });
-  await page.goto('./');
-  const row = page.getByRole('region', { name: 'Example cards' });
-  await expect(row).toHaveAttribute('tabindex', '0');
-  const scrollable = await row.evaluate((el) => el.scrollWidth > el.clientWidth);
-  expect(scrollable).toBe(true);
-  await row.focus();
-  await page.keyboard.press('ArrowRight');
-  await expect.poll(() => row.evaluate((el) => el.scrollLeft)).toBeGreaterThan(0);
+// ---------- The play ----------
+
+test('the shy panda peeks once, rests with reduced motion, and ducks when tapped', async ({ browser }) => {
+  for (const [reducedMotion, expected] of [['no-preference', 'pd-peek'], ['reduce', 'none']] as const) {
+    const context = await browser.newContext({ reducedMotion });
+    const page = await context.newPage();
+    await page.goto('./');
+    const panda = page.locator('.pd-peek img');
+    await expect(panda).toHaveCSS('animation-name', expected);
+    const shown = () =>
+      panda.evaluate((img) => {
+        const box = img.parentElement!.getBoundingClientRect();
+        return (img.getBoundingClientRect().right - box.left) / box.width;
+      });
+    if (reducedMotion === 'reduce') expect(await shown()).toBeGreaterThan(0.8);
+    // Tapped, it ducks behind the trunk, then comes back.
+    await page.waitForTimeout(reducedMotion === 'reduce' ? 0 : 2300);
+    await page.getByRole('button', { name: 'Say hello to the shy panda' }).click();
+    await expect(page.locator('.pd-peek')).toHaveClass(/is-hiding/);
+    await expect(page.locator('.pd-peek')).not.toHaveClass(/is-hiding/, { timeout: 3000 });
+    await expect.poll(shown).toBeGreaterThan(0.8);
+    await context.close();
+  }
 });
 
+test('bedtime turns the opening scene to night and back', async ({ page }) => {
+  await page.goto('./');
+  const hero = page.locator('.pd-hero');
+  const night = page.locator('.pd-layer-night').first();
+  await expect(night).not.toHaveAttribute('src', /.+/); // the night paintings wait until asked for
+  await page.getByRole('button', { name: 'Bedtime' }).click();
+  await expect(hero).toHaveAttribute('data-time', 'night');
+  await expect(night).toHaveAttribute('src', 'art/landing-sky-night.webp');
+  await expect(night).toHaveCSS('opacity', '1', { timeout: 3000 });
+  await page.getByRole('button', { name: 'Morning' }).click();
+  await expect(hero).toHaveAttribute('data-time', 'day');
+  await expect(page.getByRole('button', { name: 'Bedtime' })).toBeVisible();
+});
+
+test('sharing a moment puts its keepsake on the shelf and grows the cub', async ({ page }) => {
+  await page.goto('./');
+  const placed = page.locator('.pd-shelf li.is-placed');
+  await expect(placed).toHaveCount(0);
+  await page.getByRole('button', { name: 'What they said' }).click();
+  await expect(page.locator('.pd-card-title')).toHaveText('What they said');
+  await expect(page.locator('.pd-card-art')).toHaveAttribute('src', 'art/cub-speaking.webp');
+  await expect(page.getByRole('button', { name: 'What they said' })).toHaveAttribute('aria-pressed', 'true');
+
+  const share = page.getByRole('button', { name: 'Share', exact: true });
+  await share.click();
+  await expect(placed).toHaveCount(1);
+  await expect(page.locator('.pd-shelf li[data-keepsake="child-said"]')).toHaveClass(/is-placed/);
+  await expect(page.locator('.pd-den-stage')).toContainText('Eyes open');
+  await expect(page.locator('.pd-den-cub')).toHaveAttribute('src', 'art/cub-awake.webp');
+
+  // Sharing the same moment again grows the cub, but the keepsake is already there.
+  await expect(share).toBeEnabled();
+  await share.click();
+  await expect(page.locator('.pd-den-stage')).toContainText('First wobbly steps');
+  await expect(placed).toHaveCount(1);
+
+  // Six shares in all bring the cub to its own den, and it stays there.
+  for (let i = 0; i < 4; i++) {
+    await expect(share).toBeEnabled();
+    await share.click();
+  }
+  await expect(page.locator('.pd-den-cub')).toHaveAttribute('src', 'art/cub-own-den.webp');
+  await page.getByRole('button', { name: 'Start again' }).click();
+  await expect(placed).toHaveCount(0);
+  await expect(page.locator('.pd-den-cub')).toHaveAttribute('src', 'art/cub-newborn-sleeping.webp');
+  await expect(share).toBeFocused();
+});
+
+test('starting again while a share is in flight calls the share back', async ({ page }) => {
+  await page.goto('./');
+  const share = page.getByRole('button', { name: 'Share', exact: true });
+  await share.click();
+  await expect(page.getByRole('button', { name: 'Start again' })).toBeVisible();
+  await expect(share).toBeEnabled();
+  await share.click(); // a second share, still flying...
+  await page.getByRole('button', { name: 'Start again' }).click(); // ...when the visitor starts again
+  await page.waitForTimeout(1200); // longer than a share takes to land
+  await expect(page.locator('.pd-shelf li.is-placed')).toHaveCount(0);
+  await expect(page.locator('.pd-den-cub')).toHaveAttribute('src', 'art/cub-newborn-sleeping.webp');
+  await expect(share).toBeEnabled();
+});
+
+test('feeding the cub counts the berries: three, and still hungry', async ({ page }) => {
+  await page.goto('./');
+  const count = page.locator('.pd-count');
+  await expect(count).toBeHidden();
+  for (let i = 1; i <= 3; i++) await page.getByRole('button', { name: `Pick berry ${i}` }).click();
+  await expect(count).toHaveText('3Three… still hungry!');
+  // The keyboard stays on the bush.
+  await expect(page.getByRole('button', { name: 'Pick berry 4' })).toBeFocused();
+  for (let i = 4; i <= 5; i++) await page.getByRole('button', { name: `Pick berry ${i}` }).click();
+  await expect(count).toHaveText('5Five! Full and happy.');
+  await expect(page.locator('.pd-feed-cub')).toHaveAttribute('src', 'art/cub-smiling.webp');
+  await page.getByRole('button', { name: 'Pick again' }).click();
+  await expect(count).toBeHidden();
+  await expect(page.getByRole('button', { name: 'Pick berry 1' })).toBeEnabled();
+});
+
+test('the roadmap stones are tabs a keyboard can walk', async ({ page }) => {
+  await page.goto('./');
+  const tabs = page.getByRole('tab');
+  await expect(tabs).toHaveCount(7);
+  // It opens where the work is now: the journal.
+  await expect(tabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+  await expect(page.locator('#phase-1')).toBeVisible();
+  await expect(page.locator('#phase-0')).toBeHidden();
+  await tabs.nth(1).focus();
+  await page.keyboard.press('ArrowRight');
+  await expect(tabs.nth(2)).toBeFocused();
+  await expect(page.locator('#phase-2')).toBeVisible();
+  await expect(page.locator('#phase-1')).toBeHidden();
+  await page.keyboard.press('End');
+  await expect(page.locator('#phase-6')).toBeVisible();
+  await page.keyboard.press('ArrowRight');
+  await expect(page.locator('#phase-0')).toBeVisible();
+  await expect(page.getByRole('tabpanel')).toHaveCount(1);
+});
+
+test('the owl tells a bedtime line and the cub yawns', async ({ page }) => {
+  await page.goto('./');
+  const says = page.locator('.pd-owl-says');
+  await expect(says).toBeHidden();
+  await page.getByRole('button', { name: 'Ask the owl for a story' }).click();
+  await expect(says).toHaveText(/Once upon a time/);
+  await expect(page.locator('.pd-night-cub')).toHaveAttribute('src', 'art/cub-yawn.webp');
+  await page.getByRole('button', { name: 'Ask the owl for a story' }).click();
+  await expect(says).toHaveText(/stars are out/);
+  await expect(page.locator('.pd-night-cub')).toHaveAttribute('src', 'art/cub-newborn-sleeping.webp', { timeout: 4000 });
+});
+
+test('with reduced motion the far layers do not drift', async ({ browser }) => {
+  for (const [reducedMotion, drifts] of [['no-preference', true], ['reduce', false]] as const) {
+    const context = await browser.newContext({ reducedMotion });
+    const page = await context.newPage();
+    await page.goto('./');
+    await page.evaluate(() => window.scrollTo(0, 300));
+    await page.waitForTimeout(200);
+    const transform = await page.locator('.pd-depth').first().evaluate((el) => getComputedStyle(el).transform);
+    expect(transform !== 'none', `${reducedMotion}: ${transform}`).toBe(drifts);
+    await context.close();
+  }
+});
+
+// ---------- Contrast ----------
+
 // Every piece of text is measured against the pixels actually rendered behind it,
-// including the painted hero and the cards: the page is screenshotted with all
-// text hidden, and each text box is sampled from that image. A box passes when
-// its 10th-percentile contrast clears WCAG AA (4.5:1, or 3:1 for large text), so
-// a stray light pixel in a painting cannot fail it but a light patch can.
-test('every piece of text has enough contrast with what is behind it', async ({ browser, isMobile }) => {
-  test.setTimeout(90_000);
+// including the paintings: the page is screenshotted with all text hidden, and each
+// text box is sampled from that image. A box passes when its 10th-percentile contrast
+// clears WCAG AA (4.5:1, or 3:1 for large text), so a stray light pixel in a painting
+// cannot fail it but a light patch can.
+async function contrastFailures(browser: Browser, isMobile: boolean, prepare: (page: Page) => Promise<void>) {
   // Its own context: hiding the text needs an injected style, which the site's CSP rightly refuses.
   const context = await browser.newContext({ bypassCSP: true, viewport: isMobile ? { width: 390, height: 844 } : { width: 1280, height: 900 } });
   const page = await context.newPage();
   await visitWholePage(page);
-  await page.$$eval('img', (imgs) => Promise.allSettled(imgs.map((i) => i.decode())));
+  await prepare(page);
+  await page.$$eval('img[src]', (imgs) => Promise.allSettled(imgs.filter((i) => !i.closest('[hidden]')).map((i) => i.decode())));
   await page.evaluate(() => window.scrollTo(0, 0));
-  // Freeze what a full-page capture would otherwise move or hide: the hero's height
-  // follows the viewport (svh), fanned cards report axis-aligned boxes wider than their
-  // text, and on a phone the cards scrolled out of their row are not painted at all.
+  // Freeze what a full-page capture would otherwise move: the hero's height follows
+  // the viewport (svh), and the far layers drift with scroll.
   const heroHeight = await page.locator('.pd-hero').evaluate((el) => el.getBoundingClientRect().height);
   await page.addStyleTag({
     content: `.pd-grove .pd-hero { min-height: ${heroHeight}px !important; height: ${heroHeight}px; }
-      .pd-grove .pd-card { transform: none !important; }
-      .pd-grove .pd-card-row { flex-wrap: wrap !important; overflow: visible !important; }`,
+      .pd-grove .pd-depth { transform: none !important; }
+      .pd-grove *, .pd-grove *::before, .pd-grove *::after { transition: none !important; animation: none !important; }`,
   });
 
   const boxes = await page.evaluate(() => {
@@ -298,5 +486,24 @@ test('every piece of text has enough contrast with what is behind it', async ({ 
   );
   await lab.close();
   await context.close();
+  return failures;
+}
+
+test('every piece of text has enough contrast with what is behind it', async ({ browser, isMobile }) => {
+  test.setTimeout(90_000);
+  // With the owl's words showing, so the bubble is measured too.
+  const failures = await contrastFailures(browser, isMobile, async (page) => {
+    await page.getByRole('button', { name: 'Ask the owl for a story' }).click();
+    for (let i = 1; i <= 3; i++) await page.getByRole('button', { name: `Pick berry ${i}` }).click();
+  });
+  expect(failures).toEqual([]);
+});
+
+test('the opening scene keeps its contrast at night', async ({ browser, isMobile }) => {
+  test.setTimeout(90_000);
+  const failures = await contrastFailures(browser, isMobile, async (page) => {
+    await page.getByRole('button', { name: 'Bedtime' }).click();
+    await expect(page.locator('.pd-hero')).toHaveAttribute('data-time', 'night');
+  });
   expect(failures).toEqual([]);
 });

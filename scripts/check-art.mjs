@@ -25,6 +25,13 @@ for (const dir of ['site/art', 'site/fonts']) {
 
 const page = readFileSync('site/index.html', 'utf8') + readFileSync('site/styles.css', 'utf8');
 const used = new Set([...page.matchAll(/(?:art|fonts)\/[\w.-]+\.(?:webp|woff2)/g)].map((m) => `site/${m[0]}`));
+// valley.js names paintings by id (art('cub-young')): any string literal that is a
+// shipped painting's id counts as a use. A missing one is caught by the e2e tests,
+// which play every interaction and check that each picture draws.
+const script = readFileSync('site/valley.js', 'utf8');
+for (const [, id] of script.matchAll(/'([a-z0-9-]+)'/g)) {
+  if (listed.includes(`site/art/${id}.webp`)) used.add(`site/art/${id}.webp`);
+}
 for (const file of used) if (!listed.includes(file)) problems.push(`referenced but not shipped: ${file}`);
 for (const file of listed) {
   if (/\.(webp|woff2)$/.test(file) && !used.has(file)) problems.push(`shipped but never used: ${file}`);
