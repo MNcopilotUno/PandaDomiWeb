@@ -2,7 +2,7 @@
   "$comment": "Which accepted Panda Domi assets the landing page ships, and at what width. Written by scripts/sync-art.py from a PandaDomi checkout; checked by scripts/check-art.mjs. Edit the list and widths, then re-run the sync; never edit the hashes by hand. 'pending' lists art the page will use once the game accepts it; `python3 scripts/sync-art.py --status` reports where each stands.",
   "source": {
     "repo": "MNcopilotUno/PandaDomi",
-    "commit": "3329689a1ae9a5f7054f3df8df88473554ba02f9"
+    "commit": "ebd853a4bf040b8f9664dc27a03188e2e59539fb"
   },
   "images": [
     {
@@ -129,6 +129,96 @@
       "id": "owl-storytelling",
       "width": 640,
       "use": "the good-night footer: the owl telling a bedtime story from its branch"
+    },
+    {
+      "id": "landing-sky-night",
+      "width": 1673,
+      "use": "hero at night (day/night switch)"
+    },
+    {
+      "id": "landing-valley-night",
+      "width": 1673,
+      "use": "hero at night"
+    },
+    {
+      "id": "landing-grove-night",
+      "width": 1673,
+      "use": "hero at night"
+    },
+    {
+      "id": "cub-awake",
+      "width": 640,
+      "use": "try it: cub stage, eyes open"
+    },
+    {
+      "id": "cub-young",
+      "width": 640,
+      "use": "try it: cub stage, young and curious"
+    },
+    {
+      "id": "cub-climbing",
+      "width": 640,
+      "use": "try it: cub stage, climbing"
+    },
+    {
+      "id": "cub-own-den",
+      "width": 640,
+      "use": "try it: cub stage, its own den"
+    },
+    {
+      "id": "cub-smiling",
+      "width": 640,
+      "use": "try it: the first-smile card; feed the cub, full"
+    },
+    {
+      "id": "cub-yawn",
+      "width": 640,
+      "use": "the good-night footer: the cub yawns when the owl talks"
+    },
+    {
+      "id": "crop-berries-ready",
+      "width": 384,
+      "use": "feed the cub: the berry bush"
+    },
+    {
+      "id": "berry-single",
+      "width": 128,
+      "use": "feed the cub: one berry"
+    },
+    {
+      "id": "bowl-wooden",
+      "width": 256,
+      "use": "feed the cub: the bowl"
+    },
+    {
+      "id": "postcard-branch-wave",
+      "width": 960,
+      "use": "roadmap phase 0"
+    },
+    {
+      "id": "place-cub-farm",
+      "width": 960,
+      "use": "roadmap phase 2"
+    },
+    {
+      "id": "postcard-berry-field",
+      "width": 960,
+      "use": "roadmap phase 3"
+    },
+    {
+      "id": "treehouse-inside",
+      "width": 960,
+      "use": "roadmap phase 4"
+    },
+    {
+      "id": "valley-map",
+      "width": 960,
+      "use": "roadmap phase 5"
+    },
+    {
+      "id": "postcard-sleepy-moon",
+      "width": 960,
+      "use": "roadmap phase 6"
     }
   ],
   "pending": [],
@@ -166,6 +256,24 @@
     "site/art/app-icon.webp": "bb51520419d18340a2881d1def45e70b4e3890954b6ce6d4df523bae958973e1",
     "site/art/valley-night.webp": "934d9030064b8b387aaf434fbc7489d33998db29440e950d70883a515ad9c476",
     "site/art/owl-storytelling.webp": "3ca7860dc99ef48c66836c94a452fa3afa2d47bee598b0d9220f9c928cb1bc93",
+    "site/art/landing-sky-night.webp": "a063ea0b34b3ceda5755362860527ecc5736bfdb2bfeafb8d38c0b88ea8c023d",
+    "site/art/landing-valley-night.webp": "71a8667ad1ae529a8f7410ab050ab4b0195de2d80c2aa0d3ad8e2918bb4b8400",
+    "site/art/landing-grove-night.webp": "c2f2c6fe760ca695b57e8525cc92dd284bfca24363ac0112901dceb74147c437",
+    "site/art/cub-awake.webp": "17234760505d68c6e15860f65d93bfef5941ccbe92d0b3be376efb91457a3592",
+    "site/art/cub-young.webp": "774e2e2ea026f4b448a601abfa886e604fcd368d02255a1e4aa64ee0fe74ab2c",
+    "site/art/cub-climbing.webp": "3d1e470030bee5a5a5c2e2a6b7b8ea9738e644f82663431c6044dde0de377d8a",
+    "site/art/cub-own-den.webp": "84971d732e2c42b9e36c3ba8b882bbc2adbe3e81202ebb9a5e2f7d85925b5e04",
+    "site/art/cub-smiling.webp": "81c0dea0b55a09afd6d0398573f1627c799011117c686e45f8ba7dce13d2c8b7",
+    "site/art/cub-yawn.webp": "d4cf7bdd485ce762e95164024b8ec4fec52e6b6cd1dec8f5a48449d4d5d78664",
+    "site/art/crop-berries-ready.webp": "ac1150094fc1a3df17ea6d79a92c654c77897f1b21ebe52bd1c0a28744daaf7d",
+    "site/art/berry-single.webp": "d9f7dc3740f9c9197fb1f6fe46ebfbb9ebcd106c8da3c3338f10b016cc52a851",
+    "site/art/bowl-wooden.webp": "0a181d62de68733de835052e21199fd1c655263239b8c9be0f1c7fc27e27c053",
+    "site/art/postcard-branch-wave.webp": "67d9f3f72eeb2dea7b9a51be615a731a1dbd8066f1f7c792c1fa0c1d4c1dff2e",
+    "site/art/place-cub-farm.webp": "ebae8ebfa0295717fb9ee55994a3c9a598185aaa1538032968562b51880d74f8",
+    "site/art/postcard-berry-field.webp": "f2a72a0f62204c249cbe9a4dbbfc39d2aa3827eb03d8c4e9d5a983c602aba614",
+    "site/art/treehouse-inside.webp": "0dfc071f2e7780d6abaf8d94d7b0db4b4ee86ccfa81761e5ca96f76db3aa986a",
+    "site/art/valley-map.webp": "9af659160d7961b5a05ae5b1773d681a6e016f34ed780fc03f5d9c56d514ec30",
+    "site/art/postcard-sleepy-moon.webp": "c32f6e0791d87f23b472712cba57be9f6903d1875a5f04ded975daaa2bc9da26",
     "site/fonts/baloo-2-latin-800-normal.woff2": "3e36c57e37bda5b5f28cf10636d6d3aed4de5250df923f1b203b64ad857c79a7",
     "site/fonts/baloo-2-latin-ext-800-normal.woff2": "d73eb61f07d8895ca21f6c334630fc2ba889ad84d61e0401ea24b5d8b1928d0d",
     "site/fonts/nunito-latin-wght-normal.woff2": "ba344451eab25b217a165363b1982048a5e5830a0daf36577973955a04cac793",
