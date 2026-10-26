@@ -3,129 +3,222 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; script-src 'self'; base-uri 'none'; form-action 'none'">
   <meta name="referrer" content="no-referrer">
   <title>Panda Domi · share the moment, not your child</title>
-  <meta name="description" content="A cosy red panda journal that grows up with your family. Share a moment as a little panda card, never a photo of your child. Works offline, no accounts, no ads, no tracking.">
+  <meta name="description" content="A cosy red panda journal that grows up with your family, and later a gentle game your child plays with the same cub. Share a moment as a panda card, never a photo of your child. Works offline, no accounts, no ads, no tracking.">
   <meta name="theme-color" content="#CFE3EC">
   <link rel="icon" href="art/app-icon.webp" type="image/webp">
   <link rel="alternate" type="application/atom+xml" href="feed.xml" title="Panda Domi news">
   <link rel="stylesheet" href="styles.css">
+  <script src="valley.js" defer></script>
 </head>
 <body>
   <a class="pd-skip" href="#story">Skip to the story</a>
 
   <!-- The whole scene lives inside .pd-grove so it can later move, unchanged,
        into the bamboo grove of the Domi villa site. Every picture is accepted
-       art from the game, listed in art/assets.json. -->
+       art from the game, listed in art/assets.json. valley.js only adds play:
+       without it every section still reads, and its controls stay hidden. -->
   <div class="pd-grove">
 
-    <header class="pd-hero">
+    <header class="pd-hero" data-time="day">
       <div class="pd-stage">
-        <img class="pd-layer" src="art/landing-sky.webp" alt="" width="1673" height="941" fetchpriority="high">
-        <img class="pd-layer" src="art/landing-valley.webp" alt="" width="1672" height="940" fetchpriority="high">
-        <div class="pd-peek">
-          <img src="art/big-panda-peek.webp" alt="" width="768" height="768">
+        <div class="pd-depth" data-depth="0.35">
+          <img class="pd-layer pd-layer-day" src="art/landing-sky.webp" alt="" width="1673" height="941" fetchpriority="high">
+          <img class="pd-layer pd-layer-night" data-src="art/landing-sky-night.webp" alt="" width="1673" height="941">
         </div>
-        <img class="pd-layer" src="art/landing-grove.webp" alt="A painted Himalayan valley: an old mossy tree and bamboo in the front, green hills, a stream and misty mountains far away. A shy red panda peeks out from behind the tree." width="1673" height="941" fetchpriority="high">
+        <div class="pd-depth" data-depth="0.18">
+          <img class="pd-layer pd-layer-day" src="art/landing-valley.webp" alt="" width="1672" height="940" fetchpriority="high">
+          <img class="pd-layer pd-layer-night" data-src="art/landing-valley-night.webp" alt="" width="1673" height="941">
+        </div>
+        <div class="pd-depth" data-depth="0.06">
+          <div class="pd-peek">
+            <img src="art/big-panda-peek.webp" alt="" width="768" height="768">
+          </div>
+          <img class="pd-layer pd-layer-day" src="art/landing-grove.webp" alt="A painted Himalayan valley: an old mossy tree and bamboo in the front, green hills, a stream and misty mountains far away. A shy red panda peeks out from behind the tree." width="1673" height="941" fetchpriority="high">
+          <img class="pd-layer pd-layer-night" data-src="art/landing-grove-night.webp" alt="" width="1673" height="941">
+          <button class="pd-peek-hit" type="button" aria-label="Say hello to the shy panda" hidden></button>
+        </div>
       </div>
+
+      <button class="pd-daynight" type="button" hidden>
+        <svg class="pd-moon-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 15.5A8 8 0 0 1 8.5 4a8 8 0 1 0 11.5 11.5z"/></svg>
+        <svg class="pd-sun-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></svg>
+        <span class="pd-daynight-label">Bedtime</span>
+      </button>
 
       <div class="pd-cover">
         <p class="pd-brand"><img src="art/app-icon.webp" alt="" width="44" height="44">Panda Domi</p>
         <h1>Share the moment, not&nbsp;your&nbsp;child.</h1>
-        <p class="pd-lede">A cosy red panda journal for your family’s first years. First steps, funny moments, the things they say: each one becomes a little panda card you can send to the family.</p>
-        <a class="pd-button" href="#story">Meet the pandas</a>
+        <p class="pd-lede">A cosy red panda journal for your family’s first years, and later a gentle game your child plays with the very same cub. The journal and the whole learning game are free, forever.</p>
+        <div class="pd-actions">
+          <a class="pd-button" href="#story">Meet the pandas</a>
+          <a class="pd-button pd-button-quiet" href="#path">See the path ahead</a>
+        </div>
       </div>
     </header>
 
     <main id="story" tabindex="-1">
-      <section class="pd-plate-row" aria-labelledby="den-title">
-        <div class="pd-plate">
-          <img class="pd-scene" src="art/den-interior.webp" alt="" width="1200" height="900" loading="lazy">
-          <img class="pd-character" src="art/big-panda-with-cub.webp" alt="Inside a warm tree-hollow den, a big red panda holds a tiny sleeping cub in its paws." width="768" height="768" loading="lazy">
-        </div>
-        <div class="pd-words">
-          <h2 id="den-title">When your baby arrives, your panda gets a cub</h2>
-          <p>Your big red panda lives in a cosy den in a quiet valley. On the day your baby is born, a tiny cub arrives too, and sleeps curled up in the moss.</p>
-        </div>
-      </section>
 
-      <section class="pd-keepsakes" aria-labelledby="keepsakes-title">
+      <!-- The journal loop: a moment becomes a card, a keepsake, and a little more cub. -->
+      <section class="pd-try" aria-labelledby="try-title">
         <div class="pd-words">
-          <h2 id="keepsakes-title">Every moment you share leaves a keepsake</h2>
-          <p>Share a moment and your panda puts something on the shelf of the den. Over the months, the den fills up with your family’s year.</p>
+          <h2 id="try-title">Every moment you share leaves a keepsake</h2>
+          <p>When your baby arrives, your big red panda gets a tiny cub. Pick a card, add a few words, tap share: the moment goes to the family as panda art, a keepsake goes on the shelf of the den, and the cub grows a little.</p>
+          <div class="pd-try-controls" hidden>
+            <p class="pd-step"><span>1</span>Pick a moment</p>
+            <div class="pd-chips" role="group" aria-label="Moments">
+              <button type="button" class="pd-chip" data-moment="first-steps" aria-pressed="true">First steps</button>
+              <button type="button" class="pd-chip" data-moment="first-smile" aria-pressed="false">A first smile</button>
+              <button type="button" class="pd-chip" data-moment="first-word" aria-pressed="false">A first word</button>
+              <button type="button" class="pd-chip" data-moment="funny-moment" aria-pressed="false">Made us laugh</button>
+              <button type="button" class="pd-chip" data-moment="child-said" aria-pressed="false">What they said</button>
+              <button type="button" class="pd-chip" data-moment="new-food" aria-pressed="false">Something new</button>
+              <button type="button" class="pd-chip" data-moment="slept-through" aria-pressed="false">Slept through</button>
+              <button type="button" class="pd-chip" data-moment="sweet-moment" aria-pressed="false">A sweet moment</button>
+            </div>
+            <p class="pd-step"><span>2</span>Share it</p>
+            <div class="pd-share-row">
+              <button type="button" class="pd-button pd-share">Share</button>
+              <button type="button" class="pd-button pd-button-quiet pd-again" hidden>Start again</button>
+            </div>
+            <p class="pd-note">Pretend sharing: nothing leaves this page. In the app, your phone’s own share sheet opens.</p>
+          </div>
         </div>
-        <ul class="pd-shelf">
-          <li><img src="art/tiny-footprints.webp" alt="Tiny paw prints" width="256" height="256" loading="lazy"><span>First steps</span></li>
-          <li><img src="art/sun-drawing.webp" alt="A crayon drawing of the sun" width="256" height="256" loading="lazy"><span>A first smile</span></li>
-          <li><img src="art/wooden-blocks.webp" alt="Wooden toy blocks" width="256" height="256" loading="lazy"><span>A first word</span></li>
-          <li><img src="art/paper-crown.webp" alt="A paper crown" width="256" height="256" loading="lazy"><span>That made us laugh</span></li>
-          <li><img src="art/speech-bubble-note.webp" alt="A little speech bubble note" width="256" height="256" loading="lazy"><span>What they said</span></li>
-          <li><img src="art/berry-bowl.webp" alt="A bowl of red berries" width="256" height="256" loading="lazy"><span>Tried something new</span></li>
-          <li><img src="art/moon-lantern.webp" alt="A paper lantern with a moon on it" width="256" height="256" loading="lazy"><span>Slept through the night</span></li>
-          <li><img src="art/rhododendron-flower.webp" alt="A pink rhododendron flower" width="256" height="256" loading="lazy"><span>A sweet moment</span></li>
-        </ul>
-      </section>
 
-      <section class="pd-plate-row pd-flip" aria-labelledby="play-title">
-        <div class="pd-plate">
-          <img class="pd-scene" src="art/farm-scene.webp" alt="" width="1200" height="900" loading="lazy">
-          <img class="pd-character" src="art/cub-eating.webp" alt="On a sunny little farm among rhododendrons, the cub sits happily nibbling a berry." width="768" height="768" loading="lazy">
-        </div>
-        <div class="pd-words">
-          <h2 id="play-title">When you decide they’re ready, the cub is theirs</h2>
-          <p>Never because of a birthday: you choose the day. Your child plays the cub themselves, counting berries on the farm, reading little signs in the valley and hearing the owl’s bedtime story.</p>
-        </div>
-      </section>
-
-      <section class="pd-plate-row" aria-labelledby="grow-title">
-        <div class="pd-plate pd-plate-sky">
-          <img class="pd-scene" src="art/landing-valley.webp" alt="" width="1672" height="940" loading="lazy">
-          <img class="pd-character" src="art/cub-walking.webp" alt="The grown cub striding proudly across the green valley." width="768" height="768" loading="lazy">
-        </div>
-        <div class="pd-words">
-          <h2 id="grow-title">And one day, the cub builds its own den nearby</h2>
-          <p>Like a real red panda, the cub grows up and moves into a den of its own in the same valley. Your two pandas visit each other.</p>
-        </div>
-      </section>
-
-      <section class="pd-cards" aria-labelledby="cards-title">
-        <div class="pd-words">
-          <h2 id="cards-title">Moments, not photos</h2>
-          <p>Pick a card, add a few words, tap share. It’s with grandma before the moment is over, and there is nothing of your child in it but their words.</p>
-        </div>
-        <!-- On a phone the cards scroll sideways; the region is focusable so a keyboard can scroll it too. -->
-        <div class="pd-card-row" role="region" aria-label="Example cards" tabindex="0">
+        <div class="pd-try-stage">
           <figure class="pd-card">
             <img class="pd-card-bg" src="art/card-bg-meadow.webp" alt="" width="540" height="960" loading="lazy">
             <img class="pd-card-art" src="art/cub-walking.webp" alt="" width="768" height="768" loading="lazy">
             <img class="pd-card-keepsake" src="art/tiny-footprints.webp" alt="" width="256" height="256" loading="lazy">
             <figcaption>
-              <strong>First steps!</strong>
-              <span>Three wobbly steps from the sofa to the cat.</span>
+              <strong class="pd-card-title">First steps!</strong>
+              <span class="pd-card-text">Three wobbly steps from the sofa to the cat.</span>
             </figcaption>
             <span class="pd-made">made with Panda Domi</span>
           </figure>
-          <figure class="pd-card">
-            <img class="pd-card-bg" src="art/card-bg-meadow.webp" alt="" width="540" height="960" loading="lazy">
-            <img class="pd-card-art" src="art/cub-tumble.webp" alt="" width="768" height="768" loading="lazy">
-            <img class="pd-card-keepsake" src="art/paper-crown.webp" alt="" width="256" height="256" loading="lazy">
-            <figcaption>
-              <strong>That made us laugh</strong>
-              <span>Tried to feed the cat a sock. The cat said no.</span>
-            </figcaption>
-            <span class="pd-made">made with Panda Domi</span>
-          </figure>
-          <figure class="pd-card">
-            <img class="pd-card-bg" src="art/card-bg-meadow.webp" alt="" width="540" height="960" loading="lazy">
-            <img class="pd-card-art" src="art/cub-speaking.webp" alt="" width="768" height="768" loading="lazy">
-            <img class="pd-card-keepsake" src="art/speech-bubble-note.webp" alt="" width="256" height="256" loading="lazy">
-            <figcaption>
-              <strong>What they said</strong>
-              <span>“The moon is following our car.”</span>
-            </figcaption>
-            <span class="pd-made">made with Panda Domi</span>
-          </figure>
+
+          <div class="pd-den">
+            <div class="pd-den-plate">
+              <img class="pd-scene" src="art/den-interior.webp" alt="" width="1200" height="900" loading="lazy">
+              <img class="pd-den-cub" src="art/cub-newborn-sleeping.webp" alt="" width="768" height="768" loading="lazy">
+            </div>
+            <ul class="pd-shelf" aria-label="The den's shelf">
+              <li data-keepsake="first-steps"><img src="art/tiny-footprints.webp" alt="Tiny paw prints, for first steps" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="first-smile"><img src="art/sun-drawing.webp" alt="A crayon sun, for a first smile" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="first-word"><img src="art/wooden-blocks.webp" alt="Wooden blocks, for a first word" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="funny-moment"><img src="art/paper-crown.webp" alt="A paper crown, for a moment that made you laugh" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="child-said"><img src="art/speech-bubble-note.webp" alt="A speech bubble note, for something they said" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="new-food"><img src="art/berry-bowl.webp" alt="A bowl of berries, for trying something new" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="slept-through"><img src="art/moon-lantern.webp" alt="A moon lantern, for sleeping through the night" width="256" height="256" loading="lazy"></li>
+              <li data-keepsake="sweet-moment"><img src="art/rhododendron-flower.webp" alt="A rhododendron flower, for a sweet moment" width="256" height="256" loading="lazy"></li>
+            </ul>
+            <p class="pd-den-caption" aria-live="polite"><span class="pd-den-stage">A tiny cub, fast asleep in the moss.</span></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Child mode's first session, in miniature: three berries, and still hungry. -->
+      <section class="pd-feed" aria-labelledby="feed-title">
+        <div class="pd-words">
+          <h2 id="feed-title">When you decide they’re ready, the cub is theirs</h2>
+          <p>Never because of a birthday: you choose the day. Your child plays the cub themselves. The panda counts berries with them at feeding time, asks them to read little signs in the valley, and the owl reads the bedtime story. When the cub feels poorly, the pika brings medicine.</p>
+          <p class="pd-feed-hint" hidden>Try it: tap the berries on the bush.</p>
+        </div>
+        <div class="pd-feed-plate">
+          <img class="pd-scene" src="art/farm-scene.webp" alt="" width="1200" height="900" loading="lazy">
+          <img class="pd-feed-bush" src="art/crop-berries-ready.webp" alt="" width="384" height="384" loading="lazy">
+          <div class="pd-berries" hidden>
+            <button type="button" class="pd-berry" aria-label="Pick a berry"><img src="art/berry-single.webp" alt="" width="128" height="128"></button>
+            <button type="button" class="pd-berry" aria-label="Pick a berry"><img src="art/berry-single.webp" alt="" width="128" height="128"></button>
+            <button type="button" class="pd-berry" aria-label="Pick a berry"><img src="art/berry-single.webp" alt="" width="128" height="128"></button>
+            <button type="button" class="pd-berry" aria-label="Pick a berry"><img src="art/berry-single.webp" alt="" width="128" height="128"></button>
+            <button type="button" class="pd-berry" aria-label="Pick a berry"><img src="art/berry-single.webp" alt="" width="128" height="128"></button>
+          </div>
+          <img class="pd-feed-bowl" src="art/bowl-wooden.webp" alt="" width="256" height="256" loading="lazy">
+          <img class="pd-feed-cub" src="art/cub-eating.webp" alt="On a sunny little farm, the cub sits by a berry bush and a wooden bowl, nibbling a berry." width="768" height="768" loading="lazy">
+          <p class="pd-count" aria-live="polite" hidden><span class="pd-count-number">0</span><span class="pd-count-words"></span></p>
+          <button type="button" class="pd-button pd-button-quiet pd-feed-again" hidden>Pick again</button>
+        </div>
+      </section>
+
+      <!-- The roadmap, as stepping stones through the valley. Without the script
+           every phase is listed; with it, the stones become tabs. -->
+      <section id="path" class="pd-path" aria-labelledby="path-title">
+        <div class="pd-words">
+          <h2 id="path-title">The path through the valley</h2>
+          <p>Panda Domi is being built one stepping stone at a time. The free journal comes first, then the game, and only later anything that costs money.</p>
+        </div>
+
+        <ol class="pd-stones">
+          <li><a class="pd-stone" href="#phase-0" data-status="done"><span class="pd-stone-n">0</span><span class="pd-stone-name">This page</span></a></li>
+          <li><a class="pd-stone" href="#phase-1" data-status="now"><span class="pd-stone-n">1</span><span class="pd-stone-name">The journal</span><span class="pd-here">You are here</span></a></li>
+          <li><a class="pd-stone" href="#phase-2" data-status="started"><span class="pd-stone-n">2</span><span class="pd-stone-name">The farm</span></a></li>
+          <li><a class="pd-stone" href="#phase-3" data-status="groundwork"><span class="pd-stone-n">3</span><span class="pd-stone-name">Child play</span></a></li>
+          <li><a class="pd-stone" href="#phase-4" data-status="later"><span class="pd-stone-n">4</span><span class="pd-stone-name">Extras</span></a></li>
+          <li><a class="pd-stone" href="#phase-5" data-status="later"><span class="pd-stone-n">5</span><span class="pd-stone-name">Visits</span></a></li>
+          <li><a class="pd-stone" href="#phase-6" data-status="later"><span class="pd-stone-n">6</span><span class="pd-stone-name">Further</span></a></li>
+        </ol>
+
+        <div class="pd-phases">
+          <article id="phase-0" class="pd-phase">
+            <img src="art/postcard-branch-wave.webp" alt="The big panda and the cub waving from a branch over the valley." width="960" height="720" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="done">Done · autumn 2026</p>
+              <h3>A quiet valley to explain the idea</h3>
+              <p>This page: a shy panda behind an old tree, the story of the big panda and the cub, and the promise. It loads nothing from anyone else.</p>
+            </div>
+          </article>
+          <article id="phase-1" class="pd-phase">
+            <img src="art/den-interior.webp" alt="The cosy den inside an old tree, with a moss bed, shelves and a lantern." width="1200" height="900" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="now">Now · being finished</p>
+              <h3>The free journal</h3>
+              <p>The big panda’s den with the tiny cub. Pick a card, add a few words and share it as a picture, in three taps. A timeline of your moments, a keepsake for each one, and export whenever you like. It works offline and stays on your phone.</p>
+              <p><a href="https://mncopilotuno.github.io/PandaDomi/app/">Peek at the early build</a></p>
+            </div>
+          </article>
+          <article id="phase-2" class="pd-phase">
+            <img src="art/place-cub-farm.webp" alt="A little farm with wooden fences and garden patches beside a round doorway in a hill." width="960" height="720" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="started">Started · this winter</p>
+              <h3>More moments, and a farm for you</h3>
+              <p>Thirty to forty cards shaped by what families really share, short animated cards, and a cub that grows with your moments. You also get your own big panda to play: plant bamboo and berries, water them, harvest and feed. Crops never wither and nothing is lost by being away.</p>
+            </div>
+          </article>
+          <article id="phase-3" class="pd-phase">
+            <img src="art/postcard-berry-field.webp" alt="The big panda with a basket and the cub among berry bushes." width="960" height="720" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="groundwork">Groundwork in place · 2027</p>
+              <h3>The cub becomes theirs</h3>
+              <p>The free learning game. A first session with the shy panda, counting to 20 with berries, a reading ladder from first sounds to a bedtime book, the owl’s story, and the pika who brings medicine. For you, a summary of what they did with no scores, and a screen-time limit where the panda simply falls asleep.</p>
+            </div>
+          </article>
+          <article id="phase-4" class="pd-phase">
+            <img src="art/treehouse-inside.webp" alt="Inside a sunny treehouse with a round window over the mountains." width="960" height="720" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="later">Later · 2027</p>
+              <h3>Extras that help real red pandas</h3>
+              <p>Optional, for grown-ups only, behind the parent lock: Panda Guardian, with a fixed 20% going to red panda conservation, signed conservation medals, treehouse rooms, adventure packs and a printed book of your year. The free core stays complete.</p>
+            </div>
+          </article>
+          <article id="phase-5" class="pd-phase">
+            <img src="art/valley-map.webp" alt="A painted map of the valley: forests, a winding stream, farm fields and little dens." width="960" height="640" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="later">Later · second half of 2027</p>
+              <h3>Visits in Panda Valley</h3>
+              <p>Your panda and your child’s visit each other, then friends’ pandas through invite links that you share. Small gifts, a classroom mode, QR codes at zoo red panda enclosures, and Red Panda Day every September.</p>
+            </div>
+          </article>
+          <article id="phase-6" class="pd-phase">
+            <img src="art/postcard-sleepy-moon.webp" alt="The big panda and the cub asleep on a branch under the moon." width="960" height="720" loading="lazy">
+            <div>
+              <p class="pd-status" data-status="later">Later · after that</p>
+              <h3>Further on</h3>
+              <p>Czech, with reading by syllables. Apps for Android and iOS. Your own voice for the bedtime story. And a link to Memoria Domi, where your real photos stay on your own devices.</p>
+            </div>
+          </article>
         </div>
       </section>
 
@@ -136,11 +229,15 @@
           <ul class="pd-promises">
             <li>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-2h6l2 2h3v11H4z M15 13a3 3 0 1 1-6 0a3 3 0 1 1 6 0 M3 3l18 18"/></svg>
-              <div><h3>No photo of your child. Ever.</h3><p>No faces, no voices, no uploads, no camera button. A card carries panda art and the words you choose.</p></div>
+              <div><h3>No photo of your child. Ever.</h3><p>No faces, no uploads, no camera button, and the app never records your child’s voice. A card carries panda art and the words you choose.</p></div>
             </li>
             <li>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 2.5h5a2.5 2.5 0 0 1 2.5 2.5v14a2.5 2.5 0 0 1-2.5 2.5h-5A2.5 2.5 0 0 1 7 19V5a2.5 2.5 0 0 1 2.5-2.5z M11 18.5h2"/></svg>
               <div><h3>It lives on your phone</h3><p>It works offline and stays on your own devices. There is no account and no server holding your family’s moments.</p></div>
+            </li>
+            <li>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 11c0 5.6-7 10-7 10z"/></svg>
+              <div><h3>Free at its heart, forever</h3><p>The journal, your own panda’s farm and the whole learning game to 20 never cost anything. Extras come later and stay optional.</p></div>
             </li>
             <li>
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z M9 12l2 2 4-4"/></svg>
@@ -160,7 +257,7 @@
 
       <section class="pd-follow" aria-labelledby="follow-title">
         <h2 id="follow-title">Follow along</h2>
-        <p>The den is being built right now. There is nothing to sign up for and no email to give: add <a href="feed.xml">the news feed</a> to any feed reader, or simply come back. Nothing is lost by being away.</p>
+        <p>There is nothing to sign up for and no email to give: add <a href="feed.xml">the news feed</a> to any feed reader, or simply come back. Nothing is lost by being away.</p>
       </section>
     </main>
 
@@ -168,7 +265,13 @@
       <div class="pd-night-scene">
         <img class="pd-night-valley" src="art/valley-night.webp" alt="The valley asleep under a full moon: stars over snowy mountains, misty hills, a stream and a meadow of rhododendrons, one warm window far away." width="1448" height="1086" loading="lazy">
         <p class="pd-goodnight">Good night, little panda.</p>
-        <img class="pd-night-owl" src="art/owl-storytelling.webp" alt="The owl on its branch, eyes half closed, telling a bedtime story by the light of its lantern." width="640" height="640" loading="lazy">
+        <p class="pd-owl-hint" hidden>Tap the owl for a bedtime story.</p>
+        <div class="pd-night-owl">
+          <img src="art/owl-storytelling.webp" alt="The owl on its branch, eyes half closed, telling a bedtime story by the light of its lantern." width="640" height="640" loading="lazy">
+          <span class="pd-lantern-glow" aria-hidden="true"></span>
+          <button type="button" class="pd-owl-hit" aria-label="Ask the owl for a story" hidden></button>
+        </div>
+        <p class="pd-owl-says" aria-live="polite" hidden></p>
         <img class="pd-night-cub" src="art/cub-newborn-sleeping.webp" alt="The tiny cub curled up asleep in the meadow, listening." width="768" height="768" loading="lazy">
       </div>
       <p class="pd-small">This page sets no cookies, counts no visitors and loads no fonts, scripts or pictures from anywhere else. It is hosted on GitHub Pages, and like any web host GitHub sees the requests that reach it. Panda Domi is a working name.</p>
