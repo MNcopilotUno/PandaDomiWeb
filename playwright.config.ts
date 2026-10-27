@@ -10,7 +10,8 @@ export default defineConfig({
   use: { baseURL: 'http://127.0.0.1:4173/PandaDomiWeb/' },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'] } },
-    { name: 'phone', use: { ...devices['Pixel 7'] } },
+    // The phone runs only the tests its size and touch can change (tagged @device).
+    { name: 'phone', use: { ...devices['Pixel 7'] }, grep: /@device/ },
   ],
   webServer: {
     command: 'node scripts/serve.mjs',

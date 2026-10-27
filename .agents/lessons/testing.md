@@ -41,3 +41,12 @@ must not even try.
 **What happened.** "Every picture draws" failed once under load: the owl's tap swaps the cub to a
 yawn and back after 2.2 s, and the check's `decode()` ran across the swap.
 **How to apply.** End an interaction helper only when every timed swap has settled.
+
+## A test's own context does not inherit the project's device
+**What happened.** The shy-panda and drift tests ran on the `phone` project, and their results
+read as "works on a phone". Both open `browser.newContext({ reducedMotion })`, which starts from
+defaults: a desktop viewport, no touch, no mobile UA.
+**Why it bit.** The phone leg cost a run and proved nothing the desktop leg had not.
+**How to apply.** When a test makes its own context, spread the project's device into it, or run
+the test once. Tag the tests a device can really change (`@device`) and run only those on the
+second project.

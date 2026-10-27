@@ -221,3 +221,41 @@ helper now waits for the cub to settle. The page was right; the test stopped too
 - How the play feels on a real phone with a thumb: target sizes are ≥ 44 px, measured only.
 - Screen-reader announcements beyond their text: the live regions exist and are tested for content,
   not listened to.
+
+---
+
+# Round 6: Fewer Actions minutes (`ci.yml`, `deploy.yml`, `ci-changes.sh`, `check-live.sh`, `@device`)
+
+Feature doc: `.agents/features/ci-minutes.md` (measured table, decisions, matrix).
+
+## Findings
+
+| # | Finding | Severity | Resolution |
+|:--|:--|:--|:--|
+| C1 | First draft of `ci-changes.sh` used plain `git diff --name-only`. A rename `site/art/x.webp` → `docs/x.webp` lists only `docs/x.webp`: read as docs only, the tests skip while the page loses a picture. | high (skipped tests on a code change) | `--no-renames`. A shell case covers it and fails without the flag. |
+| C2 | A `.md` under `site/` is published, but the docs rule would have skipped it. | medium | Anything under `site/` is code. A shell case covers it and fails without the rule. |
+| C3 | `if: needs.changes.outputs.code == 'true'` would skip `test` whenever `changes` failed. A skipped job satisfies a required check, so a broken detector would look green. | high | `test` runs unless the output is exactly `false` (`!cancelled() && … != 'false'`). |
+| C4 | Before, the push run on `main` was a second gate before every deploy. Now nothing re-tests the merge commit. A PR merged red, or merged after `main` moved, deploys untested code. | medium | Accepted, as asked. Deploys only from `main`, after its fast checks. The README tells you to merge only green PRs whose CI ran on the current `main`. Not enforced. Branch protection is the owner's setting and is unchanged. |
+| C5 | The peek and drift tests open their own `browser.newContext()`, so on the `phone` project they never emulated a phone. They ran twice, identically. | low (cost, and a misleading test name) | Desktop only now. Making them really test a phone is a separate decision. |
+| C6 | `deploy.yml` takes a `ref` input. Without a guard, anyone who can dispatch could publish an unmerged commit. | medium | The job fails unless it runs from `main` and the commit is an ancestor of `origin/main`. The input reaches only `with:`, never a shell line. |
+| C7 | `check-live.sh` first piped `curl | sha256sum`. Without `pipefail`, a failed fetch hashed empty input and printed a meaningless hash. | low | It now downloads to a temp file and reports `unreachable`. |
+| C8 | The image runs Node 24 where `setup-node` gave 22. | low | Nothing in `scripts/` or the tests depends on the version. Noted in the README. |
+
+## Test honesty
+
+| Check | Bug put back | Result |
+|:--|:--|:--|
+| `ci-changes.test.sh` | `--no-renames` removed | failed (rename case) |
+| `ci-changes.test.sh` | the `site/` rule removed | failed (`site/notes.md` case) |
+| `check-live.sh` | `site/feed.xml` changed locally, live site unchanged | failed: 1 of 53 files differ |
+
+`desktop` still runs all 25 tests it ran before. `phone` went from 24 run + 1 skipped to 11, the
+ones tagged `@device`. No test was removed, skipped or loosened.
+
+## What I did NOT verify
+
+- The Playwright image as uid 1001 is proven only by this PR's CI. Docker has no daemon here.
+- A docs-only PR skipping `test`: proven only by the next such PR.
+- A deploy through `deploy.yml`, its live check and a rollback: proven only by the next dispatch.
+- Whether the image bakes `/etc/localtime`. `TZ: UTC` pins it either way.
+- Whether `test` is a required check in branch protection. Its name is unchanged, so either way it reports as before.

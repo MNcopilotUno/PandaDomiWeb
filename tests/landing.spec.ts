@@ -1,5 +1,10 @@
 import { test, expect, type Browser, type Page } from '@playwright/test';
 
+// Tests the phone can change: what loads, lays out, shows or responds at a phone's size
+// and to touch. playwright.config.ts runs only these on the phone; the rest is the same
+// code on the same files, so it runs once, on the desktop.
+const DEVICE = { tag: '@device' };
+
 // The early journal build, linked from the roadmap's Phase 1. The only link that leaves this site.
 const EARLY_BUILD = 'https://mncopilotuno.github.io/PandaDomi/app/';
 
@@ -36,7 +41,7 @@ async function playEverything(page: Page) {
   await page.waitForLoadState('networkidle');
 }
 
-test('loads nothing from any other origin, even while playing', async ({ page, baseURL }) => {
+test('loads nothing from any other origin, even while playing', DEVICE, async ({ page, baseURL }) => {
   const origin = new URL(baseURL!).origin;
   const requests: string[] = [];
   const kinds = new Set<string>();
@@ -65,7 +70,7 @@ test('loads nothing from any other origin, even while playing', async ({ page, b
   for (const kind of kinds) expect(['image', 'font', 'stylesheet', 'script', 'document']).toContain(kind);
 });
 
-test('every file it asks for exists', async ({ page }) => {
+test('every file it asks for exists', DEVICE, async ({ page }) => {
   const failed: string[] = [];
   page.on('response', (r) => {
     if (r.status() >= 400) failed.push(`${r.status()} ${r.url()}`);
@@ -92,7 +97,7 @@ test('every picture draws, in every state the play can reach', async ({ page }) 
   expect(broken).toEqual([]);
 });
 
-test('no console errors or security policy violations', async ({ page }) => {
+test('no console errors or security policy violations', DEVICE, async ({ page }) => {
   const errors: string[] = [];
   page.on('console', (m) => {
     if (m.type() === 'error' || m.type() === 'warning') errors.push(m.text());
@@ -103,7 +108,7 @@ test('no console errors or security policy violations', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('tells the whole story', async ({ page }) => {
+test('tells the whole story', DEVICE, async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('.pd-brand')).toHaveText('Panda Domi');
   await expect(page.getByRole('heading', { level: 1 })).toHaveText(/^Share the moment, not\s+your\s+child\.$/);
@@ -195,7 +200,7 @@ test('the skip link is the first stop for the keyboard', async ({ page, isMobile
   await expect(page.locator('#story')).toBeFocused();
 });
 
-test('fits a small phone without sideways scrolling', async ({ page }) => {
+test('fits a small phone without sideways scrolling', DEVICE, async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await page.goto('./');
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -266,7 +271,7 @@ test('the shy panda peeks once, rests with reduced motion, and ducks when tapped
   }
 });
 
-test('bedtime turns the opening scene to night and back', async ({ page }) => {
+test('bedtime turns the opening scene to night and back', DEVICE, async ({ page }) => {
   await page.goto('./');
   const hero = page.locator('.pd-hero');
   const night = page.locator('.pd-layer-night').first();
@@ -280,7 +285,7 @@ test('bedtime turns the opening scene to night and back', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Bedtime' })).toBeVisible();
 });
 
-test('sharing a moment puts its keepsake on the shelf and grows the cub', async ({ page }) => {
+test('sharing a moment puts its keepsake on the shelf and grows the cub', DEVICE, async ({ page }) => {
   await page.goto('./');
   const placed = page.locator('.pd-shelf li.is-placed');
   await expect(placed).toHaveCount(0);
@@ -328,7 +333,7 @@ test('starting again while a share is in flight calls the share back', async ({ 
   await expect(share).toBeEnabled();
 });
 
-test('feeding the cub counts the berries: three, and still hungry', async ({ page }) => {
+test('feeding the cub counts the berries: three, and still hungry', DEVICE, async ({ page }) => {
   await page.goto('./');
   const count = page.locator('.pd-count');
   await expect(count).toBeHidden();
@@ -364,7 +369,7 @@ test('the roadmap stones are tabs a keyboard can walk', async ({ page }) => {
   await expect(page.getByRole('tabpanel')).toHaveCount(1);
 });
 
-test('the owl tells a bedtime line and the cub yawns', async ({ page }) => {
+test('the owl tells a bedtime line and the cub yawns', DEVICE, async ({ page }) => {
   await page.goto('./');
   const says = page.locator('.pd-owl-says');
   await expect(says).toBeHidden();
@@ -489,7 +494,7 @@ async function contrastFailures(browser: Browser, isMobile: boolean, prepare: (p
   return failures;
 }
 
-test('every piece of text has enough contrast with what is behind it', async ({ browser, isMobile }) => {
+test('every piece of text has enough contrast with what is behind it', DEVICE, async ({ browser, isMobile }) => {
   test.setTimeout(90_000);
   // With the owl's words showing, so the bubble is measured too.
   const failures = await contrastFailures(browser, isMobile, async (page) => {
@@ -499,7 +504,7 @@ test('every piece of text has enough contrast with what is behind it', async ({ 
   expect(failures).toEqual([]);
 });
 
-test('the opening scene keeps its contrast at night', async ({ browser, isMobile }) => {
+test('the opening scene keeps its contrast at night', DEVICE, async ({ browser, isMobile }) => {
   test.setTimeout(90_000);
   const failures = await contrastFailures(browser, isMobile, async (page) => {
     await page.getByRole('button', { name: 'Bedtime' }).click();
