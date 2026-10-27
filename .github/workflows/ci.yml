@@ -1,0 +1,65 @@
+name: CI
+
+# Pull requests only: main changes only through merged pull requests, and a pull
+# request's run already tests the merge result. Deploying is a separate, manual
+# workflow (deploy.yml) that does not test the same code a second time.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  changes:
+    name: changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      code: ${{ steps.diff.outputs.code }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - name: No file over 5 MB
+        run: node scripts/check-size.mjs
+      - name: The docs-only detector passes its own test
+        run: sh scripts/ci-changes.test.sh
+      - id: diff
+        name: Does this pull request touch anything a check or test reads?
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        run: sh scripts/ci-changes.sh "$BASE" "$HEAD" | tee -a "$GITHUB_OUTPUT"
+
+  test:
+    name: test
+    needs: changes
+    # Skipped only on an explicit code=false: if the detector broke, the tests still run.
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Chromium and its system libraries come baked in; the tag is @playwright/test's exact version.
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
+      options: --user 1001 --ipc=host
+    env:
+      # The image's build sets America/Los_Angeles; the tests were written on UTC runners.
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - run: pnpm install --frozen-lockfile
+      - name: Art and fonts match the game assets they were synced from
+        run: pnpm art:check
+      - name: Playwright against the files as deployed
+        run: pnpm test
+      - if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-results
+          path: test-results/
+          retention-days: 7

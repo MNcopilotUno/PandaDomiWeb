@@ -29,6 +29,8 @@ scripts/
   check-art.mjs    fails if site/art or site/fonts drifted from art/assets.json
   serve.mjs        static server under /PandaDomiWeb/, 127.0.0.1 only
   check-size.mjs   no file over 5 MB
+  ci-changes.sh    CI: does a pull request touch anything but docs? (tested by ci-changes.test.sh)
+  check-live.sh    after a deploy: the live site serves exactly these files
 tests/             Playwright, against site/ as deployed
 .agents/           feature doc, self-review, lessons
 ```
@@ -67,16 +69,37 @@ repository.
 ```bash
 pnpm install --frozen-lockfile
 pnpm serve          # http://127.0.0.1:4173/PandaDomiWeb/
-pnpm test           # Playwright: desktop + phone projects
+pnpm test           # Playwright: the whole suite on desktop, the @device tests on a phone
 pnpm art:check      # art and fonts match art/assets.json
 pnpm check:size     # no file over 5 MB
 git config core.hooksPath .githooks   # once per clone: the 5 MB pre-commit hook
+sh scripts/ci-changes.test.sh         # the docs-only detector, on a throwaway repository
+sh scripts/check-live.sh https://mncopilotuno.github.io/PandaDomiWeb/   # is the live site this checkout?
 ```
 
-## Deploy
+## CI and deploy
 
-`.github/workflows/pages.yml` tests every pull request and every push to `main`; a green push to
-`main` deploys `site/` to GitHub Pages (Source: GitHub Actions). All actions run on Node 24.
+- **CI** (`.github/workflows/ci.yml`) runs on pull requests only; `main` changes only through
+  merged pull requests, and a pull request's run tests the merge result. A small `changes` job
+  checks file sizes and asks `scripts/ci-changes.sh` whether anything but docs changed (`*.md`
+  outside `site/`, `.agents/`, `docs/`: nothing that a check or test reads). On docs only, `test`
+  is skipped. `test` runs the art check and Playwright inside the Playwright image for the exact
+  `@playwright/test` version, so nothing is installed per run. When you bump `@playwright/test`,
+  bump the image tag in `ci.yml` to match. Nothing re-tests `main` after a merge, so merge only a
+  pull request whose CI is green, and if `main` moved since that run, merge `main` into the branch
+  and let CI run again.
+- **Tests that the phone can change** (layout, touch, what loads at its size, contrast) carry
+  `@device` and run on both projects; the rest run once, on the desktop. Tag a new test `@device`
+  when a phone could make it pass or fail differently.
+- **Deploy** (`.github/workflows/deploy.yml`) is manual: Actions → *Deploy to Pages* → Run
+  workflow, from `main`. It re-runs only the fast checks (art, size), publishes `site/` to GitHub
+  Pages (Source: GitHub Actions), then `check-live.sh` proves every file on the live site is the
+  published commit's. **Deploy in batches:** once per working session or when asked, not once per
+  merged pull request. Merged work is not live until then; say so when reporting.
+- **Roll back:** run *Deploy to Pages* with `ref` set to the last good commit on `main`. Only
+  commits on `main` can be published.
+
+All actions run on Node 24.
 
 ## Moving the scene
 

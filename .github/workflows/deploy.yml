@@ -1,0 +1,60 @@
+name: Deploy to Pages
+
+# Manual, in batches: once per session or on request, not once per merged pull request.
+# Every commit on main was tested by its pull request's CI, so this job only re-runs
+# the fast checks, publishes, and then proves the live site serves exactly these files.
+# Roll back: run this workflow with `ref` set to the last good commit on main.
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit on main to publish (empty = the tip of main). For a rollback, the last good commit.
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+# One deploy at a time, and never cancelled halfway.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref || github.sha }}
+          fetch-depth: 0
+      - name: Only a commit on main is published
+        env:
+          REF: ${{ github.ref }}
+        run: |
+          test "$REF" = refs/heads/main || { echo "::error::Run this from main, not $REF"; exit 1; }
+          git merge-base --is-ancestor HEAD origin/main || { echo "::error::$(git rev-parse HEAD) is not on main"; exit 1; }
+          git log -1 --format='Publishing %h %s'
+      - name: Art and fonts match the game assets they were synced from
+        run: node scripts/check-art.mjs
+      - name: No file over 5 MB
+        run: node scripts/check-size.mjs
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v5
+      - name: The live site serves exactly these files
+        env:
+          PAGE_URL: ${{ steps.deployment.outputs.page_url }}
+        run: sh scripts/check-live.sh "$PAGE_URL"
