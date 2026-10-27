@@ -122,6 +122,7 @@
     const again = section.querySelector('.pd-again');
     const cub = section.querySelector('.pd-den-cub');
     const stageWords = section.querySelector('.pd-den-stage');
+    const said = section.querySelector('.pd-said');
     const slots = [...section.querySelectorAll('.pd-shelf li')];
 
     let moment = 'first-steps';
@@ -136,11 +137,13 @@
       cardText.textContent = m.text;
     };
 
-    const showStage = (n, announce = '') => {
+    // The den shows what the cub is doing; screen readers also hear what was shared.
+    const showStage = (n, news = '') => {
       const s = STAGES[Math.min(n, STAGES.length - 1)];
       cub.src = art(s.art);
       replay(cub, 'is-growing');
-      stageWords.textContent = announce + s.words;
+      stageWords.textContent = s.words;
+      said.textContent = news && `${news} ${s.words}`;
     };
 
     for (const chip of chips) {
@@ -166,7 +169,8 @@
         slot.classList.add('is-placed');
         shared += 1;
         const keepsakeName = slot.querySelector('img').alt.split(',')[0];
-        showStage(shared, `${m.title} Shared. ${isNew ? `${keepsakeName} went on the shelf. ` : ''}`);
+        const title = /[.!?]$/.test(m.title) ? m.title : `${m.title}.`;
+        showStage(shared, `Shared “${title}”${isNew ? ` ${keepsakeName} went on the shelf.` : ''}`);
         card.classList.remove('is-sending');
         replay(card, 'is-arriving');
         share.disabled = false;

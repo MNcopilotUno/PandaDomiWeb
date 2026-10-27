@@ -110,9 +110,9 @@ a low-end phone or a slow connection.
 | Without script: every phase listed, the finished state shown, not one visible button | e2e | `without script the whole page still reads, and no control is dead` |
 | Bedtime: night layers load only on request, cross-fade in, and back | e2e | `bedtime turns the opening scene to night and back` |
 | Tap the shy panda: ducks, then peeks again | e2e | `the shy panda peeks once, rests with reduced motion, and ducks when tapped` |
-| Share: card swaps, keepsake placed once, cub grows to its own den, Start again resets and refocuses | e2e | `sharing a moment puts its keepsake on the shelf and grows the cub` |
+| Share: card swaps, keepsake placed once, cub grows to its own den, Start again resets and refocuses; the den line says only what the cub does, screen readers hear what was shared, and the keepsakes still to collect wait as faint ghosts (round 7) | e2e | `sharing a moment puts its keepsake on the shelf and grows the cub` |
 | Start again during a share in flight calls it back | e2e | `starting again while a share is in flight calls the share back` |
-| Feed: counts, "still hungry" at three, focus stays on the bush, Pick again | e2e | `feeding the cub counts the berries: three, and still hungry` |
+| Feed: counts, "still hungry" at three on one line even on a phone (round 7), focus stays on the bush, Pick again | e2e | `feeding the cub counts the berries: three, and still hungry` |
 | Roadmap tabs: opens on "now", arrows, Home/End, wrap, one panel | e2e | `the roadmap stones are tabs a keyboard can walk` |
 | Roadmap content: names, statuses, the 20% pledge, the early-build link | e2e | `the roadmap names every phase, with an honest status` |
 | Owl line and the cub's yawn | e2e | `the owl tells a bedtime line and the cub yawns` |
@@ -124,5 +124,6 @@ a low-end phone or a slow connection.
 | Someone in the family understands it unaided | manual | the Phase 0 gate |
 | Zero third-party requests in a real browser's DevTools | manual | the Phase 0 gate |
 
-Every e2e test runs in two projects (desktop Chrome, Pixel 7), against `site/` served under
-`/PandaDomiWeb/`.
+Every e2e test runs on desktop Chrome; the Pixel 7 project runs the ones tagged `@device`, which
+its size and touch can change (see `.agents/features/ci-minutes.md`). Both run against `site/`
+served under `/PandaDomiWeb/`.

@@ -89,6 +89,16 @@ body {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Read by screen readers, not drawn. */
+.pd-grove .pd-said {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
 .pd-skip {
   position: absolute;
   left: 16px;
@@ -648,23 +658,13 @@ main > section {
 
 .pd-grove .pd-shelf img { width: 88%; }
 
-/* While playing, the shelf starts empty: each keepsake waits as a soft outline. */
-.pd-try.is-playing .pd-shelf li { position: relative; }
-
-.pd-try.is-playing .pd-shelf li::before {
-  content: '';
-  position: absolute;
-  inset: 18% 18% 30%;
-  border: 2px dashed rgb(251 243 228 / 0.3);
-  border-radius: 50%;
-}
-
-.pd-try.is-playing .pd-shelf li img { opacity: 0; transform: scale(0.4); }
-.pd-try.is-playing .pd-shelf li.is-placed::before { display: none; }
+/* While playing, each keepsake waits on the shelf as a faint, small ghost of itself. */
+.pd-try.is-playing .pd-shelf li img { opacity: 0.18; transform: scale(0.6); filter: grayscale(0.6); }
 
 .pd-try.is-playing .pd-shelf li.is-placed img {
   opacity: 1;
   transform: none;
+  filter: none;
   transition: opacity 0.3s ease, transform 0.5s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 
@@ -762,6 +762,9 @@ main > section {
   white-space: nowrap;
   font-family: var(--pd-display);
 }
+
+/* .pd-grove p sets text-wrap, a shorthand that resets the wrap mode, and outranks .pd-count. */
+.pd-grove .pd-count { text-wrap: nowrap; }
 
 .pd-count-number { font-size: 2.1rem; line-height: 1.2; color: var(--pd-rust-text); }
 .pd-count-words { font-size: 1.15rem; color: var(--pd-line); }
@@ -881,6 +884,8 @@ main > section {
   display: grid;
   gap: 0.75rem;
 }
+
+.pd-grove .pd-phase h3 { font-size: clamp(1.45rem, 2.2vw, 1.65rem); line-height: 1.15; }
 
 .pd-status {
   justify-self: start;
