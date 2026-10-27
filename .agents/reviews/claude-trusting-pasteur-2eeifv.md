@@ -259,3 +259,25 @@ ones tagged `@device`. No test was removed, skipped or loosened.
 - A deploy through `deploy.yml`, its live check and a rollback: proven only by the next dispatch.
 - Whether the image bakes `/etc/localtime`. `TZ: UTC` pins it either way.
 - Whether `test` is a required check in branch protection. Its name is unchanged, so either way it reports as before.
+
+---
+
+# Round 7: The live page, brought back in line with the redesign canvas
+
+The canvas (*Panda Domi Landing Redesign: Roadmap and Play*) was compared with the deployed
+page on desktop and on a Pixel 7, after playing. Four places where the live page fell short of
+the canvas:
+
+| # | Finding | Severity | Resolution |
+|:--|:--|:--|:--|
+| V1 | The den line glued the moment's title to the news: "That made us laugh Shared. A paper crown went on the shelf. First wobbly steps…". It reads as a typo. The canvas shows only what the cub does. | medium (copy) | The den line shows the stage words. A visually hidden live region (`.pd-said`) tells screen readers `Shared “That made us laugh.” A paper crown went on the shelf. First wobbly steps across the den.` The test asserts both texts exactly, and it fails on the old page. |
+| V2 | On a phone the berry count wrapped to "Three… still / hungry!" in a tall pill, despite `white-space: nowrap`. Cause: `.pd-grove p { text-wrap: pretty }` outranks `.pd-count`, and `text-wrap` is a shorthand that resets the wrap mode. | medium (layout) | `.pd-grove .pd-count { text-wrap: nowrap }`. The feed test asserts one line. It fails on the old page on the phone and passes on the desktop, which is why the phone runs it (`@device`). |
+| V3 | While playing, the shelf showed eight dashed rings, so a visitor could not see what there was to collect. The canvas shows each keepsake as a faint ghost. | low (design) | Unplaced keepsakes at opacity 0.18, scale 0.6, partly grey. They pop to full colour when placed. The test asserts 0.18, and it fails with the old rule. |
+| V4 | The roadmap's phase titles were 1.3 rem beside a large painting. The canvas uses 26 px. | low (design) | `clamp(1.45rem, 2.2vw, 1.65rem)` on `.pd-phase h3`. Visual only, not tested. |
+| V5 | `.pd-said` is text in the DOM. The contrast test could measure a 1 px box. | — | The contrast helper already skips boxes ≤ 2 px. Full suite green. |
+| V6 | Removing `aria-live` from `.pd-den-caption` could leave a screen reader silent. | — | The new `.pd-said` is the live region, and it carries the stage words too. Start again clears it, so nothing is announced on reset. That matches before, when the reset line was also announced only as the stage words. |
+
+Not verified: how VoiceOver or TalkBack actually read the new sentence; whether 0.18 ghosts are
+visible enough on a dim phone screen.
+
+Build: committed and tested locally (36 passed). Live only after the next *Deploy to Pages*.

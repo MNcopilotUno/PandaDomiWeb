@@ -27,3 +27,12 @@ each word, paintings and gradients included.
 panda's button, so tapping the panda did nothing.
 **How to apply.** Give every decorative overlay `pointer-events: none`, and test controls by
 clicking them like a person would (Playwright refuses a click another element intercepts).
+
+## `text-wrap` resets `white-space: nowrap`
+**What happened.** The berry count pill had `white-space: nowrap` and still wrapped on a phone.
+**Why it bit.** `.pd-grove p { text-wrap: pretty }` is more specific than `.pd-count`.
+`text-wrap` is a shorthand for `text-wrap-mode` and `text-wrap-style`, so it quietly set the wrap
+mode back to `wrap`. It was invisible on the desktop, where the pill had room.
+**How to apply.** When a rule sets `text-wrap` on a broad selector, give any element that must not
+wrap `text-wrap: nowrap` at equal or higher specificity. Test "on one line" on the narrow device,
+not on the desktop.

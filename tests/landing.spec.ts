@@ -298,13 +298,20 @@ test('sharing a moment puts its keepsake on the shelf and grows the cub', DEVICE
   await share.click();
   await expect(placed).toHaveCount(1);
   await expect(page.locator('.pd-shelf li[data-keepsake="child-said"]')).toHaveClass(/is-placed/);
-  await expect(page.locator('.pd-den-stage')).toContainText('Eyes open');
+  // The den says what the cub does; what was shared is for screen readers, in a sentence.
+  await expect(page.locator('.pd-den-stage')).toHaveText('Eyes open: the cub looks around the den.');
+  await expect(page.locator('.pd-said')).toHaveText(
+    'Shared “What they said.” A speech bubble note went on the shelf. Eyes open: the cub looks around the den.',
+  );
+  // The keepsakes still to collect wait on the shelf as faint ghosts, not as gaps.
+  await expect(page.locator('.pd-shelf li[data-keepsake="first-steps"] img')).toHaveCSS('opacity', '0.18');
   await expect(page.locator('.pd-den-cub')).toHaveAttribute('src', 'art/cub-awake.webp');
 
   // Sharing the same moment again grows the cub, but the keepsake is already there.
   await expect(share).toBeEnabled();
   await share.click();
-  await expect(page.locator('.pd-den-stage')).toContainText('First wobbly steps');
+  await expect(page.locator('.pd-den-stage')).toHaveText('First wobbly steps across the den.');
+  await expect(page.locator('.pd-said')).toHaveText('Shared “What they said.” First wobbly steps across the den.');
   await expect(placed).toHaveCount(1);
 
   // Six shares in all bring the cub to its own den, and it stays there.
@@ -339,6 +346,8 @@ test('feeding the cub counts the berries: three, and still hungry', DEVICE, asyn
   await expect(count).toBeHidden();
   for (let i = 1; i <= 3; i++) await page.getByRole('button', { name: `Pick berry ${i}` }).click();
   await expect(count).toHaveText('3Three… still hungry!');
+  // On one line, even on a phone.
+  expect(await count.evaluate((p) => p.getBoundingClientRect().height < 2 * parseFloat(getComputedStyle(p.lastElementChild!).lineHeight))).toBe(true);
   // The keyboard stays on the bush.
   await expect(page.getByRole('button', { name: 'Pick berry 4' })).toBeFocused();
   for (let i = 4; i <= 5; i++) await page.getByRole('button', { name: `Pick berry ${i}` }).click();
